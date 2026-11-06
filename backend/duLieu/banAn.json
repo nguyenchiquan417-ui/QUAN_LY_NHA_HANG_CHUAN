@@ -6,13 +6,13 @@
     "soBan": "Bàn 01",
     "khuVucId": 1,
     "sucChua": 4,
-    "tokenBaoMat": "tok_5d92c673696776ce",
-    "qrToken": "tok_5d92c673696776ce",
-    "trangThai": "Trong",
+    "tokenBaoMat": "tok_3e60e610821db4b5",
+    "qrToken": "tok_3e60e610821db4b5",
+    "trangThai": "DangDung",
     "daPhatSinhGiaoDich": false,
     "ghiChu": "Gần cửa sổ",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T03:04:55.138Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 2,
@@ -27,7 +27,7 @@
     "daPhatSinhGiaoDich": true,
     "ghiChu": "Khách gia đình",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 3,
@@ -42,7 +42,7 @@
     "daPhatSinhGiaoDich": false,
     "ghiChu": "Bàn giữa",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 4,
@@ -57,7 +57,7 @@
     "daPhatSinhGiaoDich": true,
     "ghiChu": "Gần quầy bar",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 5,
@@ -72,7 +72,7 @@
     "daPhatSinhGiaoDich": false,
     "ghiChu": "",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 6,
@@ -87,7 +87,7 @@
     "daPhatSinhGiaoDich": true,
     "ghiChu": "Bàn đôi",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 7,
@@ -102,7 +102,7 @@
     "daPhatSinhGiaoDich": false,
     "ghiChu": "Ban công",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 8,
@@ -117,7 +117,7 @@
     "daPhatSinhGiaoDich": true,
     "ghiChu": "Bàn dài",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 9,
@@ -132,7 +132,7 @@
     "daPhatSinhGiaoDich": false,
     "ghiChu": "",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 10,
@@ -147,7 +147,7 @@
     "daPhatSinhGiaoDich": false,
     "ghiChu": "Dưới tán cây",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 11,
@@ -162,7 +162,7 @@
     "daPhatSinhGiaoDich": true,
     "ghiChu": "Tiệc họp mặt",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 12,
@@ -173,11 +173,11 @@
     "sucChua": 12,
     "tokenBaoMat": "tok_vip01_991",
     "qrToken": "tok_vip01_991",
-    "trangThai": "TRONG",
-    "daPhatSinhGiaoDich": false,
+    "trangThai": "DangPhucVu",
+    "daPhatSinhGiaoDich": true,
     "ghiChu": "Phòng Sen Vàng",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   },
   {
     "id": 13,
@@ -192,6 +192,6 @@
     "daPhatSinhGiaoDich": false,
     "ghiChu": "Đang bảo dưỡng đèn",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-06T02:57:09.209Z"
+    "ngayCapNhat": "2026-11-06T03:14:49.656Z"
   }
 ]

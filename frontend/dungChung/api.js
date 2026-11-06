@@ -2137,14 +2137,27 @@ class ApiService {
         const rawPosPhien = localStorage.getItem('quanmoc_pos_phien_ban');
         if (rawPosPhien) {
             try {
+                // Đọc trước danh sách bàn để lấy đúng tên bàn thực tế (ví dụ VIP 01, Bàn 02) và khu vực (Phòng VIP, Tầng 1)
+                let dsBanLocal = [];
+                try {
+                    const rawBan = localStorage.getItem(window.HANG_SO?.KHOA_LUU_TRU?.DANH_SACH_BAN || 'quanmoc_ds_ban');
+                    dsBanLocal = rawBan ? JSON.parse(rawBan) : [];
+                } catch {}
+
                 const phienMap = JSON.parse(rawPosPhien);
                 Object.values(phienMap).forEach(phien => {
                     if (phien && Array.isArray(phien.danhSachMon) && phien.danhSachMon.length > 0) {
                         const bId = Number(phien.banId);
+                        const banInfo = dsBanLocal.find(x => Number(x.id) === bId);
+                        const tenBanChuan = phien.soBan || (banInfo ? (banInfo.soBan || banInfo.tenBan) : `Bàn ${String(bId).padStart(2, '0')}`);
+                        const tenKhuVucChuan = phien.khuVucTen || (banInfo ? (banInfo.khuVucTen || banInfo.tenKhuVuc) : 'Tầng 1') || 'Tầng 1';
+
                         const thoiGian = phien.thoiGianBatDau || new Date().toISOString().replace('T', ' ').substring(0, 19);
-                        const donCungBan = ds.find(d => Number(d.banId) === bId);
+                        const donCungBan = ds.find(d => Number(d.banId) === bId && d.trangThai !== 'HOAN_THANH' && d.trangThai !== 'DA_HUY');
 
                         if (donCungBan) {
+                            donCungBan.soBan = tenBanChuan;
+                            donCungBan.khuVucTen = tenKhuVucChuan;
                             // Bàn đã có đơn -> Gộp toàn bộ món ăn vào chung 1 đơn duy nhất của bàn
                             if (!Array.isArray(donCungBan.danhSachMon)) donCungBan.danhSachMon = [];
                             phien.danhSachMon.forEach((m, idx) => {
@@ -2172,16 +2185,16 @@ class ApiService {
                                 }
                             });
                         } else {
-                            // Chưa có đơn nào của bàn này -> Tạo thẻ đơn mới chuẩn hóa
+                            // Chưa có đơn nào của bàn này -> Tạo thẻ đơn mới chuẩn hóa với đúng tên bàn và khu vực thực tế
                             const maDonPhien = `DON-POS-BAN-${bId}`;
                             ds.push({
                                 id: `pos_phien_${bId}`,
                                 maDon: maDonPhien,
                                 banId: bId,
-                                soBan: `Bàn ${String(bId).padStart(2, '0')}`,
+                                soBan: tenBanChuan,
                                 thoiGianDat: thoiGian,
                                 thoiGianTao: thoiGian,
-                                khuVucTen: 'Tầng 1',
+                                khuVucTen: tenKhuVucChuan,
                                 phienPos: true,
                                 danhSachMon: phien.danhSachMon.map((m, idx) => {
                                     let ttChuan = m.trangThai || 'CHO_XAC_NHAN';
@@ -2330,8 +2343,9 @@ class ApiService {
         if (rawPosPhien) {
             try {
                 const phienMap = JSON.parse(rawPosPhien);
-                if (phienMap[banId] && Array.isArray(phienMap[banId].danhSachMon)) {
-                    const mPos = phienMap[banId].danhSachMon.find(m => Number(m.id) === Number(idMonChiTiet) || (thongTinMon && m.tenMon === thongTinMon.tenMon));
+                const bKey = phienMap[banId] ? banId : (phienMap[String(banId)] ? String(banId) : (phienMap[Number(banId)] ? Number(banId) : null));
+                if (bKey && phienMap[bKey] && Array.isArray(phienMap[bKey].danhSachMon)) {
+                    const mPos = phienMap[bKey].danhSachMon.find(m => Number(m.id) === Number(idMonChiTiet) || (thongTinMon && m.tenMon === thongTinMon.tenMon));
                     if (mPos) {
                         let posTt = trangThaiMoi;
                         if (trangThaiMoi === 'DA_LEN_MON') posTt = 'DA_PHUC_VU';
@@ -2344,6 +2358,16 @@ class ApiService {
             } catch (e) {
                 console.warn('Lỗi đồng bộ trạng thái món sang POS:', e);
             }
+        }
+
+        // 3. ĐỒNG BỘ: Gửi cập nhật trạng thái món lên Backend Server nếu có server
+        try {
+            await this.yeuCau(`/don-goi-mon/mon-an/${idMonChiTiet}/trang-thai`, {
+                method: 'PATCH',
+                body: { trangThai: trangThaiMoi }
+            });
+        } catch (e) {
+            // Không chặn nếu server offline
         }
 
         if (!daTimThay) return { ok: false, msg: 'Không tìm thấy món ăn!' };

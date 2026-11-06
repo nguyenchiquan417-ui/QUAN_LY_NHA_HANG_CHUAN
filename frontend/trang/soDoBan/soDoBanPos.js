@@ -947,7 +947,7 @@ class SoDoBanPosModule {
                 </div>
                 <div class="chan-modal">
                     <button class="nut nut-phu" onclick="window.soDoBanPos.moModalChiTietDon(${banId})">📜 Xem đơn chi tiết</button>
-                    <button class="nut nut-chinh" onclick="window.soDoBanPos.dongModal()">✅ Hoàn tất gọi món</button>
+                    <button class="nut nut-chinh" onclick="window.soDoBanPos.xacNhanHoanTatGoiHo(${banId})">✅ Hoàn tất gọi món</button>
                 </div>
             </div>
         `;
@@ -976,10 +976,26 @@ class SoDoBanPosModule {
         });
     }
 
+    async xacNhanHoanTatGoiHo(banId) {
+        this.dongModal();
+        const dsBan = await window.api.layDanhSachBan();
+        const ban = dsBan.find(b => Number(b.id) === Number(banId));
+        const tenBan = ban ? (ban.soBan || ban.tenBan) : `Bàn ${banId}`;
+        if (window.thongBao) {
+            window.thongBao.thanhCong('Gọi món thành công! 🍲', `Đơn món của [${tenBan}] đã được đồng bộ xuống Bếp và Sơ đồ POS.`);
+        }
+        await this.taiVaHienThi();
+    }
+
     async themMonVaoBan(banId, monId) {
         const dsMon = await window.api.layDanhSachMonAn();
         const mon = dsMon.find(m => m.id == monId);
         if (!mon) return;
+
+        const dsBan = await window.api.layDanhSachBan();
+        const ban = dsBan.find(b => Number(b.id) === Number(banId));
+        const tenBan = ban ? (ban.soBan || ban.tenBan) : `Bàn ${banId}`;
+        const tenKhuVuc = ban ? (ban.khuVucTen || ban.tenKhuVuc || 'Tầng 1') : 'Tầng 1';
 
         const dsPhien = this.layTatCaPhienBan();
         let phien = dsPhien[banId];
@@ -987,7 +1003,9 @@ class SoDoBanPosModule {
             phien = {
                 id: banId,
                 banId: banId,
-                soKhach: 4,
+                soBan: tenBan,
+                khuVucTen: tenKhuVuc,
+                soKhach: ban ? (ban.sucChua || 4) : 4,
                 thoiGianBatDau: new Date().toISOString(),
                 ghiChu: '',
                 danhSachMon: []
@@ -995,12 +1013,18 @@ class SoDoBanPosModule {
             dsPhien[banId] = phien;
         }
 
+        // Đảm bảo thông tin tên bàn và khu vực chuẩn
+        phien.soBan = tenBan;
+        phien.khuVucTen = tenKhuVuc;
+
         // Kiểm tra xem món đã có trong đơn chưa, nếu có thì tăng số lượng
         const monDaCo = phien.danhSachMon.find(m => m.monAnId == monId && m.trangThai !== 'DA_HUY');
+        let monItemHienTai = null;
         if (monDaCo) {
             monDaCo.soLuong += 1;
+            monItemHienTai = monDaCo;
         } else {
-            phien.danhSachMon.push({
+            monItemHienTai = {
                 id: Date.now(),
                 monAnId: mon.id,
                 tenMon: mon.tenMon,
@@ -1009,20 +1033,57 @@ class SoDoBanPosModule {
                 tuyChon: '',
                 ghiChu: 'Nhân viên gọi hộ',
                 trangThai: 'CHO_XAC_NHAN'
-            });
+            };
+            phien.danhSachMon.push(monItemHienTai);
         }
 
         this.luuTatCaPhienBan(dsPhien);
 
         // Cập nhật trạng thái bàn sang DANG_DUNG nếu đang trống
-        const dsBan = await window.api.layDanhSachBan();
-        const ban = dsBan.find(b => b.id == banId);
-        if (ban && ban.trangThai === 'TRONG') {
+        if (ban && (ban.trangThai === 'TRONG' || ban.trangThai === 'Trong')) {
             ban.trangThai = 'DANG_DUNG';
             await window.api.luuDanhSachBan(dsBan);
+            if (window.api.capNhatTrangThaiBan) {
+                await window.api.capNhatTrangThaiBan(banId, 'DANG_DUNG');
+            }
         }
 
-        if (window.thongBao) window.thongBao.thanhCong('Đã thêm món', `Đã thêm 1x "${mon.tenMon}" vào bàn.`);
+        // ĐỒNG BỘ TOÀN DIỆN: Cập nhật ngay vào quanmoc_ds_don_goi và Backend Server
+        if (window.api && window.api.taoDonGoiMon) {
+            try {
+                await window.api.taoDonGoiMon({
+                    banId: Number(banId),
+                    maBan: ban ? ban.maBan : undefined,
+                    soBan: tenBan,
+                    khuVucTen: tenKhuVuc,
+                    ghiChuDon: 'Nhân viên gọi hộ',
+                    danhSachMon: [{
+                        id: monItemHienTai.id,
+                        monId: mon.id,
+                        tenMon: mon.tenMon,
+                        donGia: mon.giaBan,
+                        soLuong: 1,
+                        ghiChu: 'Nhân viên gọi hộ',
+                        trangThai: 'CHO_XAC_NHAN'
+                    }]
+                });
+            } catch (errSync) {
+                console.warn('Lỗi đồng bộ đơn gọi hộ lên server:', errSync);
+            }
+        }
+
+        // Phát sự kiện Socket thời gian thực cho Bếp KDS
+        if (window.socketClient) {
+            window.socketClient.phatSuKien('order:moi', {
+                banId: Number(banId),
+                soBan: tenBan,
+                khuVucTen: tenKhuVuc,
+                mon: monItemHienTai
+            });
+            window.socketClient.phatAmThanh('donMoi');
+        }
+
+        if (window.thongBao) window.thongBao.thanhCong('Đã thêm món', `Đã thêm 1x "${mon.tenMon}" vào ${tenBan}. Đơn đã đồng bộ tới Bếp.`);
         this.taiVaHienThi();
 
         // Cập nhật lại giao diện modal gọi món nếu đang mở để hiển thị số lượng và thanh tóm tắt

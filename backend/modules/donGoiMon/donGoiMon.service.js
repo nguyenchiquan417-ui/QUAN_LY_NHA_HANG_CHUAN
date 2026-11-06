@@ -97,14 +97,14 @@ async function taoDonGoiMon(duLieu) {
         throw loi;
     }
 
-    if (ban.trangThai === 'TamKhoa') {
+    if (ban.trangThai === 'TamKhoa' || ban.trangThai === 'TAM_KHOA') {
         const loi = new Error('Bàn này đang tạm khóa phục vụ');
         loi.status = 403;
         throw loi;
     }
 
     // Đổi trạng thái bàn thành Đang phục vụ nếu bàn đang trống
-    if (ban.trangThai === 'Trong') {
+    if (ban.trangThai === 'Trong' || ban.trangThai === 'TRONG') {
         await banAnModel.capNhat(ban.id, {
             trangThai: 'DangPhucVu',
             daPhatSinhGiaoDich: true
@@ -121,9 +121,11 @@ async function taoDonGoiMon(duLieu) {
         ...duLieu,
         banId: ban.id,
         maBan: ban.maBan,
-        tenBan: ban.tenBan,
+        tenBan: ban.tenBan || ban.soBan,
+        soBan: ban.soBan || ban.tenBan,
         khuVucId: ban.khuVucId,
-        tenKhuVuc: khuVucTen
+        tenKhuVuc: khuVucTen,
+        khuVucTen: khuVucTen
     };
 
     return await donGoiMonModel.taoDon(duLieuDayDu);

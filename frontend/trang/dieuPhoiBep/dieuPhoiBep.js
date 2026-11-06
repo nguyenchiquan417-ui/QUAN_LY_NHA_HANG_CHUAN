@@ -126,6 +126,15 @@ class DieuPhoiBepModule {
             if (!don.thoiGianTao) {
                 don.thoiGianTao = don.thoiGianDat || don.thoiGian || new Date().toISOString().replace('T', ' ').substring(0, 19);
             }
+            const banTim = (this.danhSachBan || []).find(b => Number(b.id) === Number(don.banId));
+            if (banTim) {
+                if (!don.soBan || (don.soBan.startsWith('Bàn ') && banTim.soBan && !banTim.soBan.startsWith('Bàn '))) {
+                    don.soBan = banTim.soBan || banTim.tenBan;
+                }
+                if (!don.khuVucTen || (don.khuVucTen === 'Tầng 1' && banTim.khuVucTen && banTim.khuVucTen !== 'Tầng 1')) {
+                    don.khuVucTen = banTim.khuVucTen || banTim.tenKhuVuc;
+                }
+            }
             if (!don.khuVucTen) don.khuVucTen = 'Tầng 1';
             if (!Array.isArray(don.danhSachMon)) don.danhSachMon = [];
             don.danhSachMon.forEach(m => {
@@ -413,12 +422,27 @@ class DieuPhoiBepModule {
             const banKey = don.banId ? Number(don.banId) : soBanSo;
 
             if (!banMap.has(banKey)) {
-                const tenBanChuan = `Bàn ${String(soBanSo).padStart(2, "0")}`;
+                const banTimThay = (this.danhSachBan || []).find(b => Number(b.id) === Number(banKey));
+                let tenBanChuan = don.soBan || don.tenBan;
+                if (!tenBanChuan && banTimThay) {
+                    tenBanChuan = banTimThay.soBan || banTimThay.tenBan;
+                }
+                if (!tenBanChuan) {
+                    tenBanChuan = `Bàn ${String(soBanSo).padStart(2, "0")}`;
+                }
+
+                let khuVucChuan = don.khuVucTen || don.tenKhuVuc;
+                if ((!khuVucChuan || khuVucChuan === 'Tầng 1') && banTimThay) {
+                    khuVucChuan = banTimThay.khuVucTen || banTimThay.tenKhuVuc || khuVucChuan;
+                }
+                if (!khuVucChuan) khuVucChuan = 'Tầng 1';
+
                 const donGop = {
                     ...don,
                     id: don.id,
                     banId: banKey,
                     soBan: tenBanChuan,
+                    khuVucTen: khuVucChuan,
                     cacDonGocIds: [don.id],
                     cacMaDon: don.maDon ? [don.maDon] : [],
                     soLuotGoi: 1,
@@ -428,6 +452,12 @@ class DieuPhoiBepModule {
                 danhSachGop.push(donGop);
             } else {
                 const donGop = banMap.get(banKey);
+                if ((!donGop.soBan || donGop.soBan.startsWith('Bàn ')) && don.soBan && !don.soBan.startsWith('Bàn ')) {
+                    donGop.soBan = don.soBan;
+                }
+                if ((!donGop.khuVucTen || donGop.khuVucTen === 'Tầng 1') && don.khuVucTen && don.khuVucTen !== 'Tầng 1') {
+                    donGop.khuVucTen = don.khuVucTen;
+                }
                 if (!donGop.cacDonGocIds.includes(don.id)) {
                     donGop.cacDonGocIds.push(don.id);
                 }

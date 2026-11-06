@@ -327,5 +327,46 @@
     ],
     "tongTien": 60000,
     "tongTienDon": 60000
+  },
+  {
+    "id": 10,
+    "maDon": "ORD-20261106-010",
+    "banId": 12,
+    "maBan": "VIP1",
+    "tenBan": "VIP 01",
+    "khuVucId": 4,
+    "tenKhuVuc": "Phòng VIP",
+    "luotGoi": 1,
+    "thoiGianTao": "2026-11-06T03:23:20.101Z",
+    "trangThai": "CHO_XU_LY",
+    "ghiChuDon": "Nhân viên gọi hộ",
+    "danhSachMon": [
+      {
+        "id": 115,
+        "monId": 1,
+        "tenMon": "Gà Nướng Ống Tre Tây Bắc",
+        "size": "Tiêu chuẩn",
+        "topping": "",
+        "donGia": 185000,
+        "soLuong": 1,
+        "thanhTien": 185000,
+        "ghiChu": "Nhân viên gọi hộ",
+        "trangThai": "CHO_XAC_NHAN"
+      },
+      {
+        "id": 116,
+        "monId": 2,
+        "tenMon": "Lẩu Gà Lá É Tao Ngộ",
+        "size": "Tiêu chuẩn",
+        "topping": "",
+        "donGia": 349000,
+        "soLuong": 1,
+        "thanhTien": 349000,
+        "ghiChu": "Nhân viên gọi hộ",
+        "trangThai": "CHO_XAC_NHAN"
+      }
+    ],
+    "tongTien": 534000,
+    "tongTienDon": 534000
   }
 ]
