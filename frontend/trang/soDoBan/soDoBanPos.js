@@ -201,12 +201,32 @@ class SoDoBanPosModule {
     async dongBoPhienVoiServer() {
         const phienLocal = this.layTatCaPhienBan();
         try {
+            const dsBan = await window.api.layDanhSachBan();
             if (window.api && window.api.layTatCaDonGoiMon) {
                 const dsDonServer = await window.api.layTatCaDonGoiMon();
+
+                // DỌN DẸP BÀN TRỐNG: Nếu bàn đang ở trạng thái TRONG và không có đơn đang chạy, xóa sạch phiên rác (tránh lỗi chuyển bàn nhưng không xóa bill cũ)
+                if (Array.isArray(dsBan)) {
+                    dsBan.forEach(b => {
+                        if (b.trangThai === 'TRONG' || b.trangThai === 'Trong') {
+                            const bId = Number(b.id);
+                            const donConHoatDong = Array.isArray(dsDonServer) && dsDonServer.some(d => 
+                                Number(d.banId) === bId && d.trangThai !== 'HOAN_THANH' && d.trangThai !== 'DA_HUY'
+                            );
+                            if (!donConHoatDong && phienLocal[bId]) {
+                                delete phienLocal[bId];
+                            }
+                        }
+                    });
+                }
+
                 if (Array.isArray(dsDonServer)) {
                     dsDonServer.forEach(don => {
                         const bId = Number(don.banId);
                         if (!bId) return;
+                        // Bỏ qua các đơn đã hoàn thành hoặc đã hủy
+                        if (don.trangThai === 'HOAN_THANH' || don.trangThai === 'DA_HUY') return;
+
                         if (!phienLocal[bId]) {
                             phienLocal[bId] = {
                                 banId: bId,
@@ -1100,7 +1120,7 @@ class SoDoBanPosModule {
     }
 
     /**
-     * US-097: Thực hiện chuyển bàn
+     * US-097: Thực hiện chuyển bàn (Đồng bộ đa chiều: Server DB, quanmoc_ds_don_goi, quanmoc_pos_phien_ban, dsBan)
      */
     async xacNhanChuyenBan(banNguonId) {
         const banDichId = parseInt(document.getElementById('ban-dich-chuyen')?.value);
@@ -1112,30 +1132,26 @@ class SoDoBanPosModule {
         const banNguon = dsBan.find(b => b.id == banNguonId);
         const banDich = dsBan.find(b => b.id == banDichId);
 
+        if (!banNguon || !banDich) return;
+
+        // Xóa ngay phiên local của bàn nguồn trước
         const dsPhien = this.layTatCaPhienBan();
-        const phienNguon = dsPhien[banNguonId];
-
-        if (!banNguon || !banDich || !phienNguon) return;
-
-        // Chuyển phiên sang bàn đích
-        phienNguon.banId = banDichId;
-        phienNguon.ghiChu = `${phienNguon.ghiChu || ''} (Chuyển từ ${banNguon.soBan}: ${lyDo})`.trim();
-        dsPhien[banDichId] = phienNguon;
         delete dsPhien[banNguonId];
+        delete dsPhien[String(banNguonId)];
         this.luuTatCaPhienBan(dsPhien);
 
-        // Cập nhật trạng thái bàn
-        banDich.trangThai = banNguon.trangThai;
-        banNguon.trangThai = 'TRONG';
-        await window.api.luuDanhSachBan(dsBan);
+        // Gọi API đồng bộ toàn diện Chuyển bàn (chuyển đơn trên DB & localStorage, cập nhật bàn nguồn sang TRONG, bàn đích sang DANG_DUNG)
+        if (window.api && window.api.chuyenBan) {
+            await window.api.chuyenBan(banNguonId, banDichId, lyDo);
+        }
 
         this.dongModal();
-        if (window.thongBao) window.thongBao.thanhCong('Chuyển bàn thành công', `Đã chuyển toàn bộ đơn từ ${banNguon.soBan} sang ${banDich.soBan}.`);
+        if (window.thongBao) window.thongBao.thanhCong('Chuyển bàn thành công', `Đã chuyển toàn bộ đơn từ ${banNguon.soBan} sang ${banDich.soBan}. Bàn nguồn đã được dọn sạch.`);
         await this.taiVaHienThi();
     }
 
     /**
-     * US-098: Thực hiện ghép bàn
+     * US-098: Thực hiện ghép bàn (Đồng bộ đa chiều)
      */
     async xacNhanGhepBan(banChinhId) {
         const cacBanPhu = Array.from(document.querySelectorAll('input[name="ban-ghep-chon"]:checked')).map(cb => parseInt(cb.value));
@@ -1147,32 +1163,25 @@ class SoDoBanPosModule {
 
         const dsBan = await window.api.layDanhSachBan();
         const banChinh = dsBan.find(b => b.id == banChinhId);
-        const dsPhien = this.layTatCaPhienBan();
-        let phienChinh = dsPhien[banChinhId];
+        if (!banChinh) return;
 
-        if (!banChinh || !phienChinh) return;
-
-        let tenCacBanGhep = [];
-        cacBanPhu.forEach(banPhuId => {
-            const banPhu = dsBan.find(b => b.id == banPhuId);
-            const phienPhu = dsPhien[banPhuId];
-            if (banPhu && phienPhu) {
-                tenCacBanGhep.push(banPhu.soBan);
-                // Gộp món ăn
-                phienPhu.danhSachMon.forEach(m => {
-                    m.ghiChu = `${m.ghiChu ? m.ghiChu + ' ' : ''}[Ghép từ ${banPhu.soBan}]`;
-                    phienChinh.danhSachMon.push(m);
-                });
-                phienChinh.soKhach += (phienPhu.soKhach || 2);
-
-                // Xóa phiên bàn phụ và trả bàn phụ về TRONG
-                delete dsPhien[banPhuId];
-                banPhu.trangThai = 'TRONG';
-            }
+        const tenCacBanGhep = cacBanPhu.map(id => {
+            const b = dsBan.find(x => x.id == id);
+            return b ? b.soBan : `Bàn ${id}`;
         });
 
+        // Xóa ngay phiên local của các bàn phụ
+        const dsPhien = this.layTatCaPhienBan();
+        cacBanPhu.forEach(idPhu => {
+            delete dsPhien[idPhu];
+            delete dsPhien[String(idPhu)];
+        });
         this.luuTatCaPhienBan(dsPhien);
-        await window.api.luuDanhSachBan(dsBan);
+
+        // Gọi API ghép bàn đồng bộ toàn diện
+        if (window.api && window.api.ghepBan) {
+            await window.api.ghepBan(cacBanPhu, banChinhId);
+        }
 
         this.dongModal();
         if (window.thongBao) {

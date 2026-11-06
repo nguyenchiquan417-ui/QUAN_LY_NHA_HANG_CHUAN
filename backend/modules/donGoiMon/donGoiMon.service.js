@@ -151,10 +151,82 @@ async function huyMon(itemId, lyDo) {
     return await donGoiMonModel.huyMon(itemId, lyDo);
 }
 
+async function chuyenBan(duLieu) {
+    const { banNguonId, banDichId, lyDo } = duLieu;
+    const banNguon = await banAnModel.layTheoId(banNguonId);
+    const banDich = await banAnModel.layTheoId(banDichId);
+    if (!banNguon || !banDich) {
+        const err = new Error('Bàn nguồn hoặc bàn đích không tồn tại');
+        err.status = 404;
+        throw err;
+    }
+
+    let khuVucTen = '';
+    if (banDich.khuVucId) {
+        const kv = await khuVucModel.layTheoId(banDich.khuVucId);
+        if (kv) khuVucTen = kv.tenKhuVuc || kv.ten || '';
+    }
+
+    // Chuyển toàn bộ đơn hàng sang bàn đích
+    const cacDonChuyen = await donGoiMonModel.chuyenBan(banNguonId, banDichId, {
+        soBan: banDich.tenBan || banDich.maBan,
+        khuVucId: banDich.khuVucId,
+        khuVucTen
+    });
+
+    // Cập nhật trạng thái bàn ăn trong DB: Bàn nguồn về Trong, bàn đích sang DangPhucVu
+    await banAnModel.capNhat(banNguonId, { trangThai: 'Trong', daPhatSinhGiaoDich: false });
+    await banAnModel.capNhat(banDichId, { trangThai: 'DangPhucVu', daPhatSinhGiaoDich: true });
+
+    return {
+        thanhCong: true,
+        soDonChuyen: cacDonChuyen.length,
+        banNguonId,
+        banDichId
+    };
+}
+
+async function ghepBan(duLieu) {
+    const { cacBanPhuIds, banChinhId } = duLieu;
+    const banChinh = await banAnModel.layTheoId(banChinhId);
+    if (!banChinh) {
+        const err = new Error('Bàn chính không tồn tại');
+        err.status = 404;
+        throw err;
+    }
+
+    let khuVucTen = '';
+    if (banChinh.khuVucId) {
+        const kv = await khuVucModel.layTheoId(banChinh.khuVucId);
+        if (kv) khuVucTen = kv.tenKhuVuc || kv.ten || '';
+    }
+
+    const cacDonGhep = await donGoiMonModel.ghepBan(cacBanPhuIds, banChinhId, {
+        soBan: banChinh.tenBan || banChinh.maBan,
+        khuVucId: banChinh.khuVucId,
+        khuVucTen
+    });
+
+    // Trả tất cả bàn phụ về Trống
+    for (const bId of (cacBanPhuIds || [])) {
+        await banAnModel.capNhat(bId, { trangThai: 'Trong', daPhatSinhGiaoDich: false });
+    }
+    await banAnModel.capNhat(banChinhId, { trangThai: 'DangPhucVu', daPhatSinhGiaoDich: true });
+
+    return {
+        thanhCong: true,
+        soDonGhep: cacDonGhep.length,
+        cacBanPhuIds,
+        banChinhId
+    };
+}
+
 module.exports = {
     layDanhSachDon,
     layDonCuaBan,
     taoDonGoiMon,
     capNhatTrangThaiMon,
-    huyMon
+    huyMon,
+    chuyenBan,
+    ghepBan
 };

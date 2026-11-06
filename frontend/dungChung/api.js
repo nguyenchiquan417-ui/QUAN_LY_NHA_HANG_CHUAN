@@ -1020,6 +1020,212 @@ class ApiService {
         return { ok: true };
     }
 
+    /**
+     * US-097: Chuyển toàn bộ đơn đặt món/phiên ăn từ bàn nguồn sang bàn đích
+     * Đồng bộ đa chiều: Backend DB, quanmoc_ds_don_goi, quanmoc_pos_phien_ban, quanmoc_ds_ban
+     */
+    async chuyenBan(banNguonId, banDichId, lyDo = 'Khách yêu cầu chuyển bàn') {
+        const idNguon = Number(banNguonId);
+        const idDich = Number(banDichId);
+
+        const dsBan = await this.layDanhSachBanAn();
+        const banNguon = dsBan.find(b => Number(b.id) === idNguon);
+        const banDich = dsBan.find(b => Number(b.id) === idDich);
+
+        const tenBanNguon = banNguon ? (banNguon.soBan || banNguon.tenBan) : `Bàn ${idNguon}`;
+        const tenBanDich = banDich ? (banDich.soBan || banDich.tenBan) : `Bàn ${idDich}`;
+        const khuVucDich = banDich ? (banDich.khuVucTen || banDich.tenKhuVuc || 'Tầng 1') : 'Tầng 1';
+
+        // 1. Cập nhật localStorage quanmoc_ds_don_goi: Đổi toàn bộ đơn của bàn nguồn sang bàn đích
+        const rawDon = localStorage.getItem(window.HANG_SO?.KHOA_LUU_TRU?.DANH_SACH_DON_GOI || 'quanmoc_ds_don_goi');
+        let dsDon = [];
+        try {
+            dsDon = rawDon ? JSON.parse(rawDon) : [];
+            if (!Array.isArray(dsDon)) dsDon = [];
+        } catch {
+            dsDon = [];
+        }
+
+        let coDonChuyen = false;
+        dsDon.forEach(d => {
+            if (Number(d.banId) === idNguon && d.trangThai !== 'HOAN_THANH' && d.trangThai !== 'DA_HUY') {
+                d.banId = idDich;
+                d.soBan = tenBanDich;
+                d.tenBan = tenBanDich;
+                d.khuVucTen = khuVucDich;
+                d.ghiChuDon = `${d.ghiChuDon ? d.ghiChuDon + ' ' : ''}[Chuyển từ ${tenBanNguon}: ${lyDo}]`.trim();
+                coDonChuyen = true;
+            }
+        });
+        if (coDonChuyen) {
+            localStorage.setItem(window.HANG_SO?.KHOA_LUU_TRU?.DANH_SACH_DON_GOI || 'quanmoc_ds_don_goi', JSON.stringify(dsDon));
+        }
+
+        // 2. Cập nhật localStorage quanmoc_pos_phien_ban: Chuyển món và XÓA SẠCH bàn nguồn
+        const rawPhien = localStorage.getItem('quanmoc_pos_phien_ban');
+        let phienMap = {};
+        try {
+            phienMap = rawPhien ? JSON.parse(rawPhien) : {};
+        } catch {
+            phienMap = {};
+        }
+
+        const phienNguon = phienMap[idNguon] || phienMap[String(idNguon)];
+        if (phienNguon) {
+            delete phienMap[idNguon];
+            delete phienMap[String(idNguon)];
+
+            phienNguon.banId = idDich;
+            phienNguon.ghiChu = `${phienNguon.ghiChu || ''} [Chuyển từ ${tenBanNguon}: ${lyDo}]`.trim();
+
+            const phienDich = phienMap[idDich] || phienMap[String(idDich)];
+            if (phienDich) {
+                if (!Array.isArray(phienDich.danhSachMon)) phienDich.danhSachMon = [];
+                (phienNguon.danhSachMon || []).forEach(m => phienDich.danhSachMon.push(m));
+                phienDich.soKhach = (phienDich.soKhach || 2) + (phienNguon.soKhach || 2);
+                phienMap[idDich] = phienDich;
+            } else {
+                phienMap[idDich] = phienNguon;
+            }
+        }
+        // Xóa triệt để khóa bàn nguồn
+        delete phienMap[idNguon];
+        delete phienMap[String(idNguon)];
+        localStorage.setItem('quanmoc_pos_phien_ban', JSON.stringify(phienMap));
+
+        // 3. Cập nhật trạng thái bàn trên UI & LocalStorage: Bàn nguồn về TRONG, bàn đích sang DANG_DUNG
+        if (banNguon) banNguon.trangThai = 'TRONG';
+        if (banDich) banDich.trangThai = 'DANG_DUNG';
+        await this.luuDanhSachBan(dsBan);
+
+        await this.capNhatTrangThaiBan(idNguon, 'TRONG');
+        await this.capNhatTrangThaiBan(idDich, 'DANG_DUNG');
+
+        // 4. Gọi Backend API đồng bộ vào Database và persistent file
+        try {
+            await this.yeuCau('/don-goi-mon/chuyen-ban', {
+                method: 'POST',
+                body: {
+                    banNguonId: idNguon,
+                    banDichId: idDich,
+                    lyDo
+                }
+            });
+        } catch (e) {
+            console.warn('Lỗi gọi API /don-goi-mon/chuyen-ban lên backend:', e);
+        }
+
+        // 5. Phát Socket Event nếu có
+        if (window.socketClient) {
+            window.socketClient.phatSuKien('ban:chuyen', { banNguonId: idNguon, banDichId: idDich, lyDo });
+            window.socketClient.phatSuKien('order:capNhat');
+        }
+
+        this.ghiNhatKy('Chuyển bàn', 'INFO', `Chuyển toàn bộ đơn từ ${tenBanNguon} sang ${tenBanDich} (${lyDo}).`);
+        return { ok: true, msg: `Đã chuyển toàn bộ đơn từ ${tenBanNguon} sang ${tenBanDich}.` };
+    }
+
+    /**
+     * US-098: Ghép bàn (Gộp đơn) từ nhiều bàn phụ vào bàn chính
+     * Đồng bộ đa chiều: Backend DB, quanmoc_ds_don_goi, quanmoc_pos_phien_ban, quanmoc_ds_ban
+     */
+    async ghepBan(cacBanPhuIds, banChinhId) {
+        const idChinh = Number(banChinhId);
+        const idsPhu = (Array.isArray(cacBanPhuIds) ? cacBanPhuIds : [cacBanPhuIds]).map(Number);
+
+        const dsBan = await this.layDanhSachBanAn();
+        const banChinh = dsBan.find(b => Number(b.id) === idChinh);
+        const tenBanChinh = banChinh ? (banChinh.soBan || banChinh.tenBan) : `Bàn ${idChinh}`;
+        const khuVucChinh = banChinh ? (banChinh.khuVucTen || banChinh.tenKhuVuc || 'Tầng 1') : 'Tầng 1';
+
+        // 1. Cập nhật localStorage quanmoc_ds_don_goi
+        const rawDon = localStorage.getItem(window.HANG_SO?.KHOA_LUU_TRU?.DANH_SACH_DON_GOI || 'quanmoc_ds_don_goi');
+        let dsDon = [];
+        try {
+            dsDon = rawDon ? JSON.parse(rawDon) : [];
+            if (!Array.isArray(dsDon)) dsDon = [];
+        } catch {
+            dsDon = [];
+        }
+
+        let coDonGhep = false;
+        dsDon.forEach(d => {
+            if (idsPhu.includes(Number(d.banId)) && d.trangThai !== 'HOAN_THANH' && d.trangThai !== 'DA_HUY') {
+                const banCu = d.banId;
+                d.banId = idChinh;
+                d.soBan = tenBanChinh;
+                d.tenBan = tenBanChinh;
+                d.khuVucTen = khuVucChinh;
+                d.ghiChuDon = `${d.ghiChuDon ? d.ghiChuDon + ' ' : ''}[Ghép từ Bàn ${banCu}]`.trim();
+                coDonGhep = true;
+            }
+        });
+        if (coDonGhep) {
+            localStorage.setItem(window.HANG_SO?.KHOA_LUU_TRU?.DANH_SACH_DON_GOI || 'quanmoc_ds_don_goi', JSON.stringify(dsDon));
+        }
+
+        // 2. Cập nhật localStorage quanmoc_pos_phien_ban: Ghép món và XÓA SẠCH các bàn phụ
+        const rawPhien = localStorage.getItem('quanmoc_pos_phien_ban');
+        let phienMap = {};
+        try {
+            phienMap = rawPhien ? JSON.parse(rawPhien) : {};
+        } catch {
+            phienMap = {};
+        }
+
+        let phienChinh = phienMap[idChinh] || phienMap[String(idChinh)] || {
+            banId: idChinh,
+            thoiGianBatDau: new Date().toISOString(),
+            soKhach: 2,
+            danhSachMon: []
+        };
+        if (!Array.isArray(phienChinh.danhSachMon)) phienChinh.danhSachMon = [];
+
+        idsPhu.forEach(idPhu => {
+            const pPhu = phienMap[idPhu] || phienMap[String(idPhu)];
+            if (pPhu && Array.isArray(pPhu.danhSachMon)) {
+                pPhu.danhSachMon.forEach(m => {
+                    m.ghiChu = `${m.ghiChu ? m.ghiChu + ' ' : ''}[Ghép từ Bàn ${idPhu}]`;
+                    phienChinh.danhSachMon.push(m);
+                });
+                phienChinh.soKhach = (phienChinh.soKhach || 2) + (pPhu.soKhach || 2);
+            }
+            delete phienMap[idPhu];
+            delete phienMap[String(idPhu)];
+        });
+        phienMap[idChinh] = phienChinh;
+        localStorage.setItem('quanmoc_pos_phien_ban', JSON.stringify(phienMap));
+
+        // 3. Cập nhật trạng thái các bàn phụ về TRONG, bàn chính sang DANG_DUNG
+        for (const idPhu of idsPhu) {
+            const b = dsBan.find(x => Number(x.id) === idPhu);
+            if (b) b.trangThai = 'TRONG';
+            await this.capNhatTrangThaiBan(idPhu, 'TRONG');
+        }
+        if (banChinh) banChinh.trangThai = 'DANG_DUNG';
+        await this.capNhatTrangThaiBan(idChinh, 'DANG_DUNG');
+        await this.luuDanhSachBan(dsBan);
+
+        // 4. Gọi Backend API
+        try {
+            await this.yeuCau('/don-goi-mon/ghep-ban', {
+                method: 'POST',
+                body: { cacBanPhuIds: idsPhu, banChinhId: idChinh }
+            });
+        } catch (e) {
+            console.warn('Lỗi gọi API /don-goi-mon/ghep-ban lên backend:', e);
+        }
+
+        // 5. Phát Socket Event nếu có
+        if (window.socketClient) {
+            window.socketClient.phatSuKien('ban:ghep', { cacBanPhuIds: idsPhu, banChinhId: idChinh });
+            window.socketClient.phatSuKien('order:capNhat');
+        }
+
+        this.ghiNhatKy('Ghép bàn', 'INFO', `Ghép các bàn [${idsPhu.join(', ')}] vào ${tenBanChinh}.`);
+        return { ok: true, msg: `Đã ghép thành công các bàn vào ${tenBanChinh}.` };
+    }
+
     // =========================================================================
     // API DANH MỤC & THỰC ĐƠN (US-031 -> US-040)
     // =========================================================================

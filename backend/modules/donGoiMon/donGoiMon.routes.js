@@ -8,5 +8,7 @@ router.get('/ban/:banId', donGoiMonController.layDonTheoBan);
 router.post('/', donGoiMonValidation.kiemTraTaoDon, donGoiMonController.taoDonMoi);
 router.patch('/mon-an/:itemId/trang-thai', donGoiMonController.capNhatTrangThaiMon);
 router.post('/mon-an/:itemId/huy', donGoiMonController.huyMon);
+router.post('/chuyen-ban', donGoiMonController.chuyenBan);
+router.post('/ghep-ban', donGoiMonController.ghepBan);
 
 module.exports = router;

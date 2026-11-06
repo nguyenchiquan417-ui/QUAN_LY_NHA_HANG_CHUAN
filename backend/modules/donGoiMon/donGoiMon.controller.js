@@ -52,10 +52,30 @@ async function huyMon(req, res, next) {
     }
 }
 
+async function chuyenBan(req, res, next) {
+    try {
+        const ketQua = await donGoiMonService.chuyenBan(req.body);
+        return phanHoiThanhCong(res, ketQua, 'Chuyển bàn thành công');
+    } catch (e) {
+        next(e);
+    }
+}
+
+async function ghepBan(req, res, next) {
+    try {
+        const ketQua = await donGoiMonService.ghepBan(req.body);
+        return phanHoiThanhCong(res, ketQua, 'Ghép bàn thành công');
+    } catch (e) {
+        next(e);
+    }
+}
+
 module.exports = {
     layDanhSach,
     layDonTheoBan,
     taoDonMoi,
     capNhatTrangThaiMon,
-    huyMon
+    huyMon,
+    chuyenBan,
+    ghepBan
 };

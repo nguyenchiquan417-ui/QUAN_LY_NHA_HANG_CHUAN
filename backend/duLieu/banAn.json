@@ -8,11 +8,11 @@
     "sucChua": 4,
     "tokenBaoMat": "tok_t1_b01_998",
     "qrToken": "tok_t1_b01_998",
-    "trangThai": "CanHoTro",
+    "trangThai": "DangPhucVu",
     "daPhatSinhGiaoDich": false,
     "ghiChu": "Gần cửa sổ",
     "ngayTao": "2026-11-05T04:10:45.070Z",
-    "ngayCapNhat": "2026-11-05T12:30:02.879Z"
+    "ngayCapNhat": "2026-11-06T02:28:14.228Z"
   },
   {
     "id": 2,
@@ -40,7 +40,8 @@
     "trangThai": "Trong",
     "daPhatSinhGiaoDich": false,
     "ghiChu": "Bàn giữa",
-    "ngayTao": "2026-11-05T04:10:45.070Z"
+    "ngayTao": "2026-11-05T04:10:45.070Z",
+    "ngayCapNhat": "2026-11-06T02:28:14.227Z"
   },
   {
     "id": 4,

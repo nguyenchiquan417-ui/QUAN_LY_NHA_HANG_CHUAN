@@ -257,6 +257,58 @@ async function dongDonCuaBan(banId) {
     return cacDon.length;
 }
 
+async function chuyenBan(banNguonId, banDichId, thongTinBanDich = {}) {
+    const cacDon = danhSachDonGoi.filter(d => 
+        Number(d.banId) === Number(banNguonId) && d.trangThai !== 'HOAN_THANH' && d.trangThai !== 'DA_HUY'
+    );
+    cacDon.forEach(d => {
+        d.banId = Number(banDichId);
+        if (thongTinBanDich.soBan || thongTinBanDich.tenBan) {
+            d.tenBan = thongTinBanDich.soBan || thongTinBanDich.tenBan;
+            d.soBan = d.tenBan;
+        }
+        if (thongTinBanDich.khuVucTen || thongTinBanDich.tenKhuVuc) {
+            d.tenKhuVuc = thongTinBanDich.khuVucTen || thongTinBanDich.tenKhuVuc;
+            d.khuVucTen = d.tenKhuVuc;
+        }
+        if (thongTinBanDich.khuVucId) {
+            d.khuVucId = thongTinBanDich.khuVucId;
+        }
+        d.ghiChuDon = `${d.ghiChuDon ? d.ghiChuDon + ' ' : ''}[Chuyển từ Bàn ${banNguonId}]`.trim();
+    });
+    if (cacDon.length > 0) {
+        luu();
+    }
+    return cacDon;
+}
+
+async function ghepBan(cacBanPhuIds, banChinhId, thongTinBanChinh = {}) {
+    const ids = Array.isArray(cacBanPhuIds) ? cacBanPhuIds.map(Number) : [Number(cacBanPhuIds)];
+    const cacDon = danhSachDonGoi.filter(d => 
+        ids.includes(Number(d.banId)) && d.trangThai !== 'HOAN_THANH' && d.trangThai !== 'DA_HUY'
+    );
+    cacDon.forEach(d => {
+        const banCu = d.banId;
+        d.banId = Number(banChinhId);
+        if (thongTinBanChinh.soBan || thongTinBanChinh.tenBan) {
+            d.tenBan = thongTinBanChinh.soBan || thongTinBanChinh.tenBan;
+            d.soBan = d.tenBan;
+        }
+        if (thongTinBanChinh.khuVucTen || thongTinBanChinh.tenKhuVuc) {
+            d.tenKhuVuc = thongTinBanChinh.khuVucTen || thongTinBanChinh.tenKhuVuc;
+            d.khuVucTen = d.tenKhuVuc;
+        }
+        if (thongTinBanChinh.khuVucId) {
+            d.khuVucId = thongTinBanChinh.khuVucId;
+        }
+        d.ghiChuDon = `${d.ghiChuDon ? d.ghiChuDon + ' ' : ''}[Ghép từ Bàn ${banCu}]`.trim();
+    });
+    if (cacDon.length > 0) {
+        luu();
+    }
+    return cacDon;
+}
+
 module.exports = {
     layTatCa,
     layTheoId,
@@ -264,5 +316,7 @@ module.exports = {
     taoDon,
     capNhatTrangThaiMon,
     huyMon,
-    dongDonCuaBan
+    dongDonCuaBan,
+    chuyenBan,
+    ghepBan
 };
