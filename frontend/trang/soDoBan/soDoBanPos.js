@@ -827,54 +827,74 @@ class SoDoBanPosModule {
         const ban = dsBan.find(b => b.id == banId);
         const dsMon = await window.api.layDanhSachMonAn();
         const dsDanhMuc = await window.api.layDanhSachDanhMuc();
+        const dsPhien = this.layTatCaPhienBan();
+        const phienHienTai = dsPhien[banId] || { danhSachMon: [] };
 
         const modal = document.getElementById('khung-modal-toan-cuc');
         if (!modal || !ban) return;
 
-        let danhSachDanhMucHtml = '<button class="nut-tab-dm kich-hoat" onclick="window.soDoBanPos.locMonGoiHo(\'TAT_CA\')">Tất cả</button>';
+        let danhSachDanhMucHtml = '<button class="nut-tab-dm kich-hoat" onclick="window.soDoBanPos.locMonGoiHo(\'TAT_CA\', this)">🍽️ Tất cả</button>';
         dsDanhMuc.forEach(dm => {
-            danhSachDanhMucHtml += `<button class="nut-tab-dm" onclick="window.soDoBanPos.locMonGoiHo(${dm.id})">${dm.bieuTuong || ''} ${dm.ten}</button>`;
+            danhSachDanhMucHtml += `<button class="nut-tab-dm" onclick="window.soDoBanPos.locMonGoiHo(${dm.id}, this)">${dm.bieuTuong || '🍲'} ${dm.ten}</button>`;
         });
+
+        // Tính tổng món và tổng tiền hiện tại trong bàn
+        const cacMonHopLe = (phienHienTai.danhSachMon || []).filter(m => m.trangThai !== 'DA_HUY');
+        const tongPhan = cacMonHopLe.reduce((sum, m) => sum + (Number(m.soLuong) || 1), 0);
+        const tongTien = cacMonHopLe.reduce((sum, m) => sum + ((Number(m.soLuong) || 1) * (Number(m.donGia) || 0)), 0);
 
         let danhSachMonHtml = '';
         dsMon.forEach(m => {
             const tamHet = (m.trangThai === 0);
+            const monDaCo = cacMonHopLe.filter(item => item.monAnId == m.id);
+            const slDaGoi = monDaCo.reduce((sum, item) => sum + (Number(item.soLuong) || 1), 0);
+
             danhSachMonHtml += `
                 <div class="the-mon-goi-ho ${tamHet ? 'mon-tam-het' : ''}" data-danh-muc="${m.danhMucId}" data-ten="${m.tenMon.toLowerCase()}">
-                    <img src="${m.hinhAnh || ''}" alt="${m.tenMon}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'">
+                    <div class="khung-anh-gh">
+                        <img src="${m.hinhAnh || ''}" alt="${m.tenMon}" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'">
+                        ${slDaGoi > 0 ? `<span class="huy-hieu-da-goi">Đã chọn: x${slDaGoi}</span>` : ''}
+                    </div>
                     <div class="thong-tin-mon-goi-ho">
-                        <div class="ten-mon-gh">${m.tenMon}</div>
-                        <div class="gia-mon-gh">${(m.giaBan || 0).toLocaleString()} đ</div>
-                        ${tamHet ? '<span class="badge badge-do">Tạm hết</span>' : `
-                            <button class="nut nut-chinh nut-mini" onclick="window.soDoBanPos.themMonVaoBan(${banId}, ${m.id})">
-                                ➕ Thêm vào bàn
-                            </button>
-                        `}
+                        <div class="ten-mon-gh" title="${m.tenMon}">${m.tenMon}</div>
+                        <div class="hang-gia-va-nut">
+                            <div class="gia-mon-gh">${(m.giaBan || 0).toLocaleString('vi-VN')} đ</div>
+                            ${tamHet ? '<span class="badge-tam-het-gh">Tạm hết</span>' : `
+                                <button class="nut-them-gh" onclick="window.soDoBanPos.themMonVaoBan(${banId}, ${m.id})">
+                                    ➕ Thêm
+                                </button>
+                            `}
+                        </div>
                     </div>
                 </div>
             `;
         });
 
         modal.innerHTML = `
-            <div class="hop-modal hop-modal-lon">
+            <div class="hop-modal hop-modal-lon modal-lon">
                 <div class="dau-modal">
                     <h3>🍲 Gọi Món Hộ Khách (US-095) — ${ban.soBan}</h3>
                     <button class="nut-dong-modal" onclick="window.soDoBanPos.dongModal()">✕</button>
                 </div>
-                <div class="than-modal" style="max-height: 70vh; overflow-y: auto;">
-                    <div style="display: flex; gap: 12px; margin-bottom: 14px;">
-                        <input type="text" id="tim-mon-goi-ho" class="o-nhap-lieu" placeholder="🔍 Nhập tên món ăn để tìm nhanh..." oninput="window.soDoBanPos.timMonGoiHo(this.value)">
+                <div class="than-modal" style="max-height: 70vh; overflow-y: auto; padding: 18px 22px;">
+                    <div class="hop-tim-kiem-goi-ho">
+                        <span class="icon-kinh-lup">🔍</span>
+                        <input type="text" id="tim-mon-goi-ho" placeholder="Nhập tên món ăn để tìm nhanh..." oninput="window.soDoBanPos.timMonGoiHo(this.value)">
                     </div>
-                    <div class="thanh-cuon-dm-goi-ho" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px;">
+                    <div class="thanh-cuon-dm-goi-ho">
                         ${danhSachDanhMucHtml}
                     </div>
-                    <div class="luoi-mon-goi-ho" id="luoi-mon-goi-ho" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;">
+                    <div class="luoi-mon-goi-ho" id="luoi-mon-goi-ho">
                         ${danhSachMonHtml}
+                    </div>
+                    <div class="thanh-tom-tat-goi-ho">
+                        <span>📋 Đơn bàn hiện tại: <strong>${cacMonHopLe.length} món</strong> (${tongPhan} phần)</span>
+                        <span style="color: #D97706; font-size: 15px; font-weight: 800;">Tổng tạm tính: ${tongTien.toLocaleString('vi-VN')} đ</span>
                     </div>
                 </div>
                 <div class="chan-modal">
-                    <button class="nut nut-phu" onclick="window.soDoBanPos.moModalChiTietDon(${banId})">Xem đơn hiện tại</button>
-                    <button class="nut nut-chinh" onclick="window.soDoBanPos.dongModal()">Hoàn tất</button>
+                    <button class="nut nut-phu" onclick="window.soDoBanPos.moModalChiTietDon(${banId})">📜 Xem đơn chi tiết</button>
+                    <button class="nut nut-chinh" onclick="window.soDoBanPos.dongModal()">✅ Hoàn tất gọi món</button>
                 </div>
             </div>
         `;
@@ -889,9 +909,9 @@ class SoDoBanPosModule {
         });
     }
 
-    locMonGoiHo(dmId) {
+    locMonGoiHo(dmId, btn) {
         document.querySelectorAll('.nut-tab-dm').forEach(b => b.classList.remove('kich-hoat'));
-        event.target.classList.add('kich-hoat');
+        if (btn) btn.classList.add('kich-hoat');
 
         document.querySelectorAll('.the-mon-goi-ho').forEach(el => {
             const dm = el.getAttribute('data-danh-muc');
@@ -951,6 +971,20 @@ class SoDoBanPosModule {
 
         if (window.thongBao) window.thongBao.thanhCong('Đã thêm món', `Đã thêm 1x "${mon.tenMon}" vào bàn.`);
         this.taiVaHienThi();
+
+        // Cập nhật lại giao diện modal gọi món nếu đang mở để hiển thị số lượng và thanh tóm tắt
+        const modal = document.getElementById('khung-modal-toan-cuc');
+        if (modal && modal.classList.contains('mo')) {
+            const tuKhoaHienTai = document.getElementById('tim-mon-goi-ho')?.value || '';
+            await this.moModalGoiMonHo(banId);
+            if (tuKhoaHienTai) {
+                const inp = document.getElementById('tim-mon-goi-ho');
+                if (inp) {
+                    inp.value = tuKhoaHienTai;
+                    this.timMonGoiHo(tuKhoaHienTai);
+                }
+            }
+        }
     }
 
     // =========================================================================

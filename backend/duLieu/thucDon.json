@@ -8,8 +8,9 @@
     "donViTinh": "Con",
     "hinhAnh": "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600&auto=format&fit=crop&q=80",
     "moTa": "Gà đồi thả vườn ướp hạt dổi, mắc khén nướng trong ống tre thơm lừng, thịt mềm ngọt đậm vị.",
-    "trangThai": "DangBan",
+    "trangThai": "TamHet",
     "laMonBanChay": true,
+    "tuyChon": [],
     "tuyChonSize": [
       {
         "ten": "Nửa con",
@@ -34,9 +35,8 @@
         "gia": 15000
       }
     ],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   },
   {
     "id": 2,
@@ -47,8 +47,9 @@
     "donViTinh": "Nồi",
     "hinhAnh": "https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80",
     "moTa": "Hương vị chuẩn Đà Lạt, nước dùng thanh ngọt nấu nấm samco và thịt gà ta, dậy mùi thơm lá é.",
-    "trangThai": "DangBan",
+    "trangThai": "TamHet",
     "laMonBanChay": true,
+    "tuyChon": [],
     "tuyChonSize": [
       {
         "ten": "Nồi vừa (2 - 3 người)",
@@ -73,9 +74,8 @@
         "gia": 35000
       }
     ],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   },
   {
     "id": 3,
@@ -88,6 +88,7 @@
     "moTa": "Thịt bò tơ tươi nướng trên than hoa giữ trọn độ mọng nước, kèm sốt tiêu rừng cay the dịu dàng.",
     "trangThai": "DangBan",
     "laMonBanChay": true,
+    "tuyChon": [],
     "tuyChonSize": [
       {
         "ten": "Phần 300g",
@@ -108,9 +109,8 @@
         "gia": 35000
       }
     ],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   },
   {
     "id": 4,
@@ -123,6 +123,7 @@
     "moTa": "Cơm cháy đáy nồi giòn rụm chấm cùng niêu kho quẹt tôm khô tóp mỡ đậm đà, ăn kèm rau củ luộc.",
     "trangThai": "DangBan",
     "laMonBanChay": true,
+    "tuyChon": [],
     "tuyChonSize": [],
     "tuyChonTopping": [
       {
@@ -134,9 +135,8 @@
         "gia": 25000
       }
     ],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   },
   {
     "id": 5,
@@ -147,13 +147,13 @@
     "donViTinh": "Con",
     "hinhAnh": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&auto=format&fit=crop&q=80",
     "moTa": "Mực câu Phan Thiết phơi một nắng dẻo thơm, tẩm ướp sa tế cay nồng nướng than hồng.",
-    "trangThai": "TamHet",
+    "trangThai": "DangBan",
     "laMonBanChay": false,
+    "tuyChon": [],
     "tuyChonSize": [],
     "tuyChonTopping": [],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   },
   {
     "id": 6,
@@ -166,6 +166,7 @@
     "moTa": "Ngó sen giòn sần sật, tôm sú bóc nõn, thịt ba chỉ luộc trộn cùng nước mắm chua ngọt và bánh phồng tôm.",
     "trangThai": "DangBan",
     "laMonBanChay": false,
+    "tuyChon": [],
     "tuyChonSize": [],
     "tuyChonTopping": [
       {
@@ -173,9 +174,8 @@
         "gia": 15000
       }
     ],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   },
   {
     "id": 7,
@@ -188,11 +188,11 @@
     "moTa": "Rau dớn, rau lủi hái trên nương rẫy xanh mướt, xào thơm nức mũi với tỏi Lý Sơn giã dập.",
     "trangThai": "DangBan",
     "laMonBanChay": false,
+    "tuyChon": [],
     "tuyChonSize": [],
     "tuyChonTopping": [],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   },
   {
     "id": 8,
@@ -205,6 +205,7 @@
     "moTa": "Trà ô long ướp hoa sen thanh nhã, thạch củ năng giòn ngọt và hạt sen bùi béo, phủ lớp kem sữa.",
     "trangThai": "DangBan",
     "laMonBanChay": true,
+    "tuyChon": [],
     "tuyChonSize": [
       {
         "ten": "Size M (Tiêu chuẩn)",
@@ -225,9 +226,8 @@
         "gia": 12000
       }
     ],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   },
   {
     "id": 9,
@@ -240,11 +240,11 @@
     "moTa": "Trà lài ủ lạnh thơm mát kết hợp vị vải ngọt thanh mọng nước.",
     "trangThai": "DangBan",
     "laMonBanChay": true,
+    "tuyChon": [],
     "tuyChonSize": [],
     "tuyChonTopping": [],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   },
   {
     "id": 10,
@@ -257,11 +257,11 @@
     "moTa": "Nước lẩu chua thanh dịu nhẹ từ nước dừa xiêm và dấm gạo thơm, kèm bắp bò hoa.",
     "trangThai": "DangBan",
     "laMonBanChay": false,
+    "tuyChon": [],
     "tuyChonSize": [],
     "tuyChonTopping": [],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   },
   {
     "id": 11,
@@ -274,11 +274,11 @@
     "moTa": "Bò tơ mềm ngọt cuốn rau rừng Tây Ninh chấm mắm nêm đặc sản.",
     "trangThai": "DangBan",
     "laMonBanChay": true,
+    "tuyChon": [],
     "tuyChonSize": [],
     "tuyChonTopping": [],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   },
   {
     "id": 12,
@@ -291,10 +291,10 @@
     "moTa": "Thịt bò tươi mềm bóp thấu kèm bắp chuối, đậu phộng rang giòn thơm lừng.",
     "trangThai": "DangBan",
     "laMonBanChay": false,
+    "tuyChon": [],
     "tuyChonSize": [],
     "tuyChonTopping": [],
-    "tuyChon": [],
     "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.053Z"
+    "ngayCapNhat": "2026-11-05T16:11:10.689Z"
   }
 ]
