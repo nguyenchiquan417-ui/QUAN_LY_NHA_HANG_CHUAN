@@ -39,9 +39,20 @@ async function layLichSu(req, res, next) {
     }
 }
 
+async function giaiPhongBan(req, res, next) {
+    try {
+        const { banId } = req.params;
+        await thanhToanService.dongPhienVaGiaiPhongBan(banId);
+        return phanHoiThanhCong(res, { banId: Number(banId), trangThai: 'Trong' }, 'Giải phóng bàn ăn và đóng toàn bộ đơn thành công');
+    } catch (e) {
+        next(e);
+    }
+}
+
 module.exports = {
     taoVietQr,
     thanhToanTienMat,
     xacNhanVietQr,
-    layLichSu
+    layLichSu,
+    giaiPhongBan
 };

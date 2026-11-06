@@ -248,12 +248,21 @@ async function huyMon(itemId, lyDo = '') {
 }
 
 async function dongDonCuaBan(banId) {
-    const cacDon = danhSachDonGoi.filter(d => Number(d.banId) === Number(banId));
+    const cacDon = danhSachDonGoi.filter(d => Number(d.banId) === Number(banId) && d.trangThai !== 'HOAN_THANH' && d.trangThai !== 'DA_HUY');
     cacDon.forEach(d => {
         d.trangThai = 'HOAN_THANH';
         d.thoiGianHoanThanh = new Date();
+        if (Array.isArray(d.danhSachMon)) {
+            d.danhSachMon.forEach(m => {
+                if (m.trangThai !== 'DA_HUY') {
+                    m.trangThai = 'DA_LEN_MON';
+                }
+            });
+        }
     });
-    luu();
+    if (cacDon.length > 0) {
+        luu();
+    }
     return cacDon.length;
 }
 

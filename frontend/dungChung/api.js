@@ -1226,6 +1226,88 @@ class ApiService {
         return { ok: true, msg: `Đã ghép thành công các bàn vào ${tenBanChinh}.` };
     }
 
+    /**
+     * US-110: Hoàn tất thanh toán, đóng phiên và xóa bàn khỏi danh sách phục vụ (đưa về Bàn trống)
+     * Đồng bộ đa chiều: Backend DB, quanmoc_ds_don_goi, quanmoc_pos_phien_ban, quanmoc_ds_ban
+     */
+    async hoanTatThanhToanVaGiaiPhongBan(banId, thongTinHoaDon = {}) {
+        const id = Number(banId);
+
+        // 1. Cập nhật localStorage quanmoc_ds_don_goi: Đánh dấu tất cả đơn của bàn là HOAN_THANH
+        const rawDon = localStorage.getItem(window.HANG_SO?.KHOA_LUU_TRU?.DANH_SACH_DON_GOI || 'quanmoc_ds_don_goi');
+        let dsDon = [];
+        try {
+            dsDon = rawDon ? JSON.parse(rawDon) : [];
+            if (!Array.isArray(dsDon)) dsDon = [];
+        } catch {
+            dsDon = [];
+        }
+
+        let coDon = false;
+        dsDon.forEach(d => {
+            if (Number(d.banId) === id && d.trangThai !== 'HOAN_THANH' && d.trangThai !== 'DA_HUY') {
+                d.trangThai = 'HOAN_THANH';
+                d.thoiGianHoanThanh = new Date().toISOString();
+                if (Array.isArray(d.danhSachMon)) {
+                    d.danhSachMon.forEach(m => {
+                        if (m.trangThai !== 'DA_HUY') m.trangThai = 'DA_LEN_MON';
+                    });
+                }
+                coDon = true;
+            }
+        });
+        if (coDon) {
+            localStorage.setItem(window.HANG_SO?.KHOA_LUU_TRU?.DANH_SACH_DON_GOI || 'quanmoc_ds_don_goi', JSON.stringify(dsDon));
+        }
+
+        // 2. XÓA SẠCH phiên phục vụ bàn khỏi quanmoc_pos_phien_ban
+        const rawPhien = localStorage.getItem('quanmoc_pos_phien_ban');
+        let phienMap = {};
+        try {
+            phienMap = rawPhien ? JSON.parse(rawPhien) : {};
+        } catch {
+            phienMap = {};
+        }
+        delete phienMap[id];
+        delete phienMap[String(id)];
+        localStorage.setItem('quanmoc_pos_phien_ban', JSON.stringify(phienMap));
+
+        // 3. Cập nhật trạng thái bàn về TRONG trên dsBan & localStorage
+        const dsBan = await this.layDanhSachBanAn();
+        const ban = dsBan.find(b => Number(b.id) === id);
+        if (ban) {
+            ban.trangThai = 'TRONG';
+        }
+        await this.luuDanhSachBan(dsBan);
+        await this.capNhatTrangThaiBan(id, 'TRONG');
+
+        // 4. Xóa bàn khỏi lựa chọn bàn đang thanh toán nếu trùng
+        const banDangChon = localStorage.getItem('quanmoc_pos_ban_thanh_toan_chon');
+        if (banDangChon && Number(banDangChon) === id) {
+            localStorage.removeItem('quanmoc_pos_ban_thanh_toan_chon');
+        }
+
+        // 5. Gọi Backend API giải phóng bàn & đóng đơn
+        try {
+            await this.yeuCau(`/thanh-toan/giai-phong-ban/${id}`, {
+                method: 'POST',
+                body: thongTinHoaDon
+            });
+        } catch (e) {
+            console.warn('Lỗi gọi API giai-phong-ban lên backend:', e);
+        }
+
+        // 6. Phát socket báo các màn hình POS, Thu ngân, KDS cập nhật
+        if (window.socketClient) {
+            window.socketClient.phatSuKien('ban:giaiphong', { banId: id });
+            window.socketClient.phatSuKien('order:hoanthanh', { banId: id });
+            window.socketClient.phatSuKien('ban:capnhat');
+        }
+
+        this.ghiNhatKy('Thanh toán hoàn tất', 'INFO', `Giải phóng ${ban ? ban.soBan : `Bàn ${id}`} về bàn trống sau thanh toán.`);
+        return { ok: true, msg: `Đã giải phóng bàn ${id} thành công.` };
+    }
+
     // =========================================================================
     // API DANH MỤC & THỰC ĐƠN (US-031 -> US-040)
     // =========================================================================

@@ -737,6 +737,9 @@ class SoDoBanPosModule {
                     <button class="nut nut-phu" onclick="window.soDoBanPos.dongModal(); window.soDoBanPos.moModalChuyenGhep(${banId})">
                         🔄 Chuyển / Ghép bàn
                     </button>
+                    <button class="nut nut-phu" style="color: #e53e3e; border-color: rgba(229, 62, 62, 0.4);" onclick="window.soDoBanPos.xacNhanDongBanNhanh(${banId})" title="Dọn dẹp và trả bàn về trạng thái Trống">
+                        🧹 Trả bàn trống
+                    </button>
                     <button class="nut nut-chinh" onclick="window.soDoBanPos.dongModal(); window.soDoBanPos.chuyenSangThanhToan(${banId})">
                         💵 Chuyển sang Thanh toán
                     </button>
@@ -744,6 +747,36 @@ class SoDoBanPosModule {
             </div>
         `;
         modal.classList.add('mo');
+    }
+
+    /**
+     * Trả bàn nhanh / Giải phóng bàn về trạng thái Trống trực tiếp từ Sơ đồ POS
+     */
+    async xacNhanDongBanNhanh(banId) {
+        const dsBan = await window.api.layDanhSachBan();
+        const ban = dsBan.find(b => b.id == banId);
+        const tenBan = ban ? ban.soBan : `Bàn ${banId}`;
+
+        if (!confirm(`Xác nhận hoàn tất thanh toán / đóng phiên và đưa [${tenBan}] về trạng thái Bàn trống sạch sẽ?`)) {
+            return;
+        }
+
+        // Xóa ngay phiên local của bàn
+        const dsPhien = this.layTatCaPhienBan();
+        delete dsPhien[banId];
+        delete dsPhien[String(banId)];
+        this.luuTatCaPhienBan(dsPhien);
+
+        // Gọi API giải phóng bàn & đóng toàn bộ đơn hàng
+        if (window.api && window.api.hoanTatThanhToanVaGiaiPhongBan) {
+            await window.api.hoanTatThanhToanVaGiaiPhongBan(banId);
+        }
+
+        this.dongModal();
+        if (window.thongBao) {
+            window.thongBao.thanhCong('Trả bàn thành công', `${tenBan} đã được giải phóng về trạng thái Bàn trống.`);
+        }
+        await this.taiVaHienThi();
     }
 
     /**

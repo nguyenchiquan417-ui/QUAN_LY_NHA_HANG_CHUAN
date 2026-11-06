@@ -15,4 +15,7 @@ router.post('/tien-mat', thanhToanValidation.kiemTraThanhToanTienMat, thanhToanC
 // US-107: Xác nhận thanh toán VietQR
 router.post('/xac-nhan-viet-qr', thanhToanValidation.kiemTraXacNhanVietQr, thanhToanController.xacNhanVietQr);
 
+// US-110: Giải phóng bàn ăn và đóng toàn bộ đơn sau thanh toán
+router.post('/giai-phong-ban/:banId', thanhToanController.giaiPhongBan);
+
 module.exports = router;

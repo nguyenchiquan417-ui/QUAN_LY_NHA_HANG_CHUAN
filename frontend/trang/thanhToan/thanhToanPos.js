@@ -185,12 +185,32 @@ class ThanhToanPosModule {
     async dongBoPhienVoiServer() {
         const phienLocal = this.layTatCaPhienBan();
         try {
+            const dsBan = await window.api.layDanhSachBan();
             if (window.api && window.api.layTatCaDonGoiMon) {
                 const dsDonServer = await window.api.layTatCaDonGoiMon();
+
+                // DỌN DẸP BÀN TRỐNG: Xóa phiên rác của các bàn đã hoàn tất thanh toán / TRONG
+                if (Array.isArray(dsBan)) {
+                    dsBan.forEach(b => {
+                        if (b.trangThai === 'TRONG' || b.trangThai === 'Trong') {
+                            const bId = Number(b.id);
+                            const donConHoatDong = Array.isArray(dsDonServer) && dsDonServer.some(d => 
+                                Number(d.banId) === bId && d.trangThai !== 'HOAN_THANH' && d.trangThai !== 'DA_HUY'
+                            );
+                            if (!donConHoatDong && phienLocal[bId]) {
+                                delete phienLocal[bId];
+                            }
+                        }
+                    });
+                }
+
                 if (Array.isArray(dsDonServer)) {
                     dsDonServer.forEach(don => {
                         const bId = Number(don.banId);
                         if (!bId) return;
+                        // Bỏ qua đơn đã hoàn thành hoặc đã hủy sau khi thanh toán
+                        if (don.trangThai === 'HOAN_THANH' || don.trangThai === 'DA_HUY') return;
+
                         if (!phienLocal[bId]) {
                             phienLocal[bId] = {
                                 banId: bId,
@@ -917,13 +937,24 @@ class ThanhToanPosModule {
             thuNgan: user ? user.hoTen : 'Quân (Thu ngân)'
         });
 
-        // 2. Đóng phiên phục vụ bàn (US-109)
+        // 2 & 3. Đóng phiên, giải phóng bàn ăn về Bàn trống và xóa sạch toàn diện đơn hàng (US-109, US-110)
         delete dsPhien[banId];
+        delete dsPhien[String(banId)];
         this.luuTatCaPhienBan(dsPhien);
 
-        // 3. Chuyển trạng thái bàn về TRONG (US-110)
-        ban.trangThai = 'TRONG';
-        await window.api.luuDanhSachBan(dsBan);
+        if (window.api && window.api.hoanTatThanhToanVaGiaiPhongBan) {
+            await window.api.hoanTatThanhToanVaGiaiPhongBan(banId, {
+                maHoaDon,
+                tongThanhToan: tinhTien.tongThanhToan,
+                phuongThuc: this.phuongThucThanhToan
+            });
+        } else {
+            ban.trangThai = 'TRONG';
+            await window.api.luuDanhSachBan(dsBan);
+            if (window.api && window.api.capNhatTrangThaiBan) {
+                await window.api.capNhatTrangThaiBan(banId, 'TRONG');
+            }
+        }
 
         // Thông báo thành công
         if (window.thongBao) {

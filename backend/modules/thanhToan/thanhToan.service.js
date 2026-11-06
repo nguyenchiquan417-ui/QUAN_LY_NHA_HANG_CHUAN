@@ -232,19 +232,22 @@ async function dongPhienVaGiaiPhongBan(banId) {
     const ban = await banAnModel.layTheoId(banId);
     if (!ban) return;
 
-    // Kiểm tra xem bàn còn hóa đơn nào chưa thanh toán hay không
-    const hoaDonChuaThanhToan = await hoaDonModel.layHoaDonChoCuaBan(banId);
-    if (!hoaDonChuaThanhToan) {
-        // Đóng toàn bộ các đơn đặt món của bàn
-        await donGoiMonModel.dongDonCuaBan(banId);
+    // Đóng toàn bộ các đơn đặt món của bàn (chuyển sang HOAN_THANH)
+    await donGoiMonModel.dongDonCuaBan(banId);
 
-        // Làm mới token bảo mật QR và chuyển trạng thái về "Trong"
-        await banAnService.lamMoiTokenQr(banId);
-        await banAnModel.capNhat(banId, {
-            trangThai: 'Trong',
-            daPhatSinhGiaoDich: false
-        });
+    // Làm mới token bảo mật QR và chuyển trạng thái về "Trong"
+    try {
+        if (banAnService && banAnService.lamMoiTokenQr) {
+            await banAnService.lamMoiTokenQr(banId);
+        }
+    } catch (err) {
+        console.warn('Lỗi làm mới token QR:', err.message);
     }
+
+    await banAnModel.capNhat(banId, {
+        trangThai: 'Trong',
+        daPhatSinhGiaoDich: false
+    });
 }
 
 async function layLichSuGiaoDich(boLoc = {}) {

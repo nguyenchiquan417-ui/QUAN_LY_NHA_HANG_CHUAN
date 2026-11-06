@@ -9,7 +9,7 @@
     "tenKhuVuc": "Tầng 1 (Máy lạnh)",
     "luotGoi": 1,
     "thoiGianTao": "2026-11-05T03:35:44.914Z",
-    "trangThai": "DANG_XU_LY",
+    "trangThai": "HOAN_THANH",
     "ghiChuDon": "Khách ăn ít cay [Chuyển từ Bàn 1] [Chuyển từ Bàn 3]",
     "danhSachMon": [
       {
@@ -40,7 +40,8 @@
     "tongTienDon": 307000,
     "tongTien": 307000,
     "soBan": "Bàn 01",
-    "khuVucTen": "Tầng 1 (Máy lạnh)"
+    "khuVucTen": "Tầng 1 (Máy lạnh)",
+    "thoiGianHoanThanh": "2026-11-06T03:04:55.056Z"
   },
   {
     "id": 2,
@@ -52,7 +53,7 @@
     "tenKhuVuc": "Tầng 1 (Máy lạnh)",
     "luotGoi": 2,
     "thoiGianTao": "2026-11-05T03:55:44.914Z",
-    "trangThai": "DANG_XU_LY",
+    "trangThai": "HOAN_THANH",
     "ghiChuDon": "Gọi thêm [Chuyển từ Bàn 1] [Chuyển từ Bàn 3]",
     "danhSachMon": [
       {
@@ -65,13 +66,14 @@
         "soLuong": 1,
         "thanhTien": 45000,
         "ghiChu": "Chiên giòn",
-        "trangThai": "DA_NAU_XONG"
+        "trangThai": "DA_LEN_MON"
       }
     ],
     "tongTienDon": 45000,
     "tongTien": 45000,
     "soBan": "Bàn 01",
-    "khuVucTen": "Tầng 1 (Máy lạnh)"
+    "khuVucTen": "Tầng 1 (Máy lạnh)",
+    "thoiGianHoanThanh": "2026-11-06T03:04:55.056Z"
   },
   {
     "id": 3,
