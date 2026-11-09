@@ -4,6 +4,7 @@
   "description": "Backend hệ thống Quản lý Nhà hàng & Gọi món QR (QUANMOC.COM)",
   "main": "backend/mayChu.js",
   "scripts": {
+    "prestart": "node backend/tienIch/giaiPhongCong.js",
     "start": "node backend/mayChu.js",
     "dev": "node --watch backend/mayChu.js"
   },
