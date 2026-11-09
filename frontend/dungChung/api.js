@@ -1719,56 +1719,118 @@ class ApiService {
 
     /**
      * US-065 & US-070: Lấy danh sách toàn bộ các món đã gọi trong phiên và tính tổng tiền lũy kế
+     * ĐỒNG BỘ TOÀN DIỆN: Hợp nhất đơn gọi từ Server API, Đơn gọi món QR (quanmoc_ds_don_goi) và Phiên bàn POS (quanmoc_pos_phien_ban)
      * @param {number|string} banId ID của bàn ăn
      */
     async layDanhSachDonTheoBan(banId) {
+        let danhSachDon = [];
+        let banInfo = null;
+
         // 1. Thử lấy từ Backend API
-        let donServer = null;
         try {
             const kqServer = await this.yeuCau(`/don-goi-mon/ban/${encodeURIComponent(banId)}`);
             if (kqServer && kqServer.ok && kqServer.data) {
-                donServer = kqServer.data;
+                if (Array.isArray(kqServer.data.danhSachDon)) {
+                    danhSachDon = [...kqServer.data.danhSachDon];
+                }
+                if (kqServer.data.ban) {
+                    banInfo = kqServer.data.ban;
+                }
             }
         } catch (e) {
             console.warn('Lỗi gọi /api/don-goi-mon/ban:', e);
         }
 
-        if (donServer) {
-            // Đảm bảo thongKe và tongTien luôn có đầy đủ
-            if (!donServer.thongKe || Object.keys(donServer.thongKe).length === 0) {
-                const tk = { tongSoMon: 0, choXacNhan: 0, dangCheBien: 0, daXong: 0, daLenMon: 0, daHuy: 0, tuChoi: 0 };
-                (donServer.danhSachDon || []).forEach(don => {
-                    if (don.tongTien === undefined && don.tongTienDon !== undefined) don.tongTien = don.tongTienDon;
-                    else if (don.tongTienDon === undefined && don.tongTien !== undefined) don.tongTienDon = don.tongTien;
-                    (don.danhSachMon || []).forEach(m => {
-                        const sl = Number(m.soLuong) || 1;
-                        if (m.trangThai !== 'DA_HUY' && m.trangThai !== 'TU_CHOI') tk.tongSoMon += sl;
-                        if (m.trangThai === 'CHO_XAC_NHAN') tk.choXacNhan += sl;
-                        else if (m.trangThai === 'DANG_CHE_BIEN') tk.dangCheBien += sl;
-                        else if (m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG') tk.daXong += sl;
-                        else if (m.trangThai === 'DA_LEN_MON') tk.daLenMon += sl;
-                        else if (m.trangThai === 'DA_HUY') tk.daHuy += sl;
-                        else if (m.trangThai === 'TU_CHOI') tk.tuChoi += sl;
-                    });
+        // 2. Đồng bộ thêm từ localStorage: Đơn gọi món QR ('quanmoc_ds_don_goi')
+        const rawDonGoi = localStorage.getItem(window.HANG_SO?.KHOA_LUU_TRU?.DANH_SACH_DON_GOI || 'quanmoc_ds_don_goi');
+        if (rawDonGoi) {
+            try {
+                const dsDonLocal = JSON.parse(rawDonGoi);
+                const donCuaBan = (dsDonLocal || []).filter(d => Number(d.banId) === Number(banId) || String(d.banId) === String(banId));
+                donCuaBan.forEach(dLocal => {
+                    const tonTai = danhSachDon.find(d => (dLocal.id && d.id === dLocal.id) || (dLocal.maDon && d.maDon === dLocal.maDon));
+                    if (!tonTai) {
+                        danhSachDon.push(dLocal);
+                    }
                 });
-                donServer.thongKe = tk;
-            } else {
-                (donServer.danhSachDon || []).forEach(don => {
-                    if (don.tongTien === undefined && don.tongTienDon !== undefined) don.tongTien = don.tongTienDon;
-                    else if (don.tongTienDon === undefined && don.tongTien !== undefined) don.tongTienDon = don.tongTien;
-                });
+            } catch (e) {
+                console.warn('Lỗi đọc quanmoc_ds_don_goi:', e);
             }
-            return {
-                ok: true,
-                data: donServer
-            };
         }
 
-        // 2. Fallback sang localStorage nếu Server offline
-        const raw = localStorage.getItem(window.HANG_SO?.KHOA_LUU_TRU?.DANH_SACH_DON_GOI || 'quanmoc_ds_don_goi');
-        const dsDon = raw ? JSON.parse(raw) : [];
-        const donCuaBan = dsDon.filter(d => Number(d.banId) === Number(banId) || String(d.banId) === String(banId));
+        // 3. ĐỒNG BỘ QUAN TRỌNG: Lấy từ phiên bàn POS ('quanmoc_pos_phien_ban')
+        const rawPosPhien = localStorage.getItem('quanmoc_pos_phien_ban');
+        if (rawPosPhien) {
+            try {
+                const phienMap = JSON.parse(rawPosPhien);
+                const phien = phienMap[String(banId)] || phienMap[Number(banId)];
+                if (phien && Array.isArray(phien.danhSachMon) && phien.danhSachMon.length > 0) {
+                    if (danhSachDon.length === 0) {
+                        // Nếu chưa có đơn gọi nào (ví dụ tạo trực tiếp từ POS) -> tạo thành Lượt gọi #1
+                        danhSachDon.push({
+                            id: `DON-POS-${banId}`,
+                            maDon: `DON-POS-${banId}`,
+                            banId: Number(banId),
+                            luotGoi: 1,
+                            thoiGianTao: phien.thoiGianBatDau || new Date().toISOString(),
+                            thoiGianTaoVN: phien.thoiGianBatDau || new Date().toISOString(),
+                            trangThai: 'DANG_XU_LY',
+                            tongTien: phien.danhSachMon.reduce((sum, m) => m.trangThai === 'DA_HUY' ? sum : sum + (Number(m.donGia || 0) * (m.soLuong || 1)), 0),
+                            danhSachMon: phien.danhSachMon.map(m => {
+                                let tt = m.trangThai || 'CHO_XAC_NHAN';
+                                if (tt === 'DA_CHE_BIEN') tt = 'DA_XONG';
+                                else if (tt === 'DA_PHUC_VU') tt = 'DA_LEN_MON';
+                                return {
+                                    id: m.id,
+                                    monAnId: m.monAnId,
+                                    tenMon: m.tenMon,
+                                    soLuong: m.soLuong || 1,
+                                    donGia: m.donGia || 0,
+                                    thanhTien: (m.donGia || 0) * (m.soLuong || 1),
+                                    trangThai: tt,
+                                    tuyChon: m.tuyChon || '',
+                                    ghiChu: m.ghiChu || ''
+                                };
+                            })
+                        });
+                    } else {
+                        // Nếu đã có đơn, đồng bộ trạng thái món hoặc thêm các món mới từ POS vào đơn
+                        const donDau = danhSachDon[0];
+                        if (donDau && Array.isArray(donDau.danhSachMon)) {
+                            phien.danhSachMon.forEach(m => {
+                                const monHienTai = donDau.danhSachMon.find(em => 
+                                    (em.id && String(em.id) === String(m.id)) ||
+                                    (em.tenMon && em.tenMon === m.tenMon)
+                                );
+                                let tt = m.trangThai || 'CHO_XAC_NHAN';
+                                if (tt === 'DA_CHE_BIEN') tt = 'DA_XONG';
+                                else if (tt === 'DA_PHUC_VU') tt = 'DA_LEN_MON';
 
+                                if (monHienTai) {
+                                    monHienTai.trangThai = tt;
+                                } else {
+                                    donDau.danhSachMon.push({
+                                        id: m.id,
+                                        monAnId: m.monAnId,
+                                        tenMon: m.tenMon,
+                                        soLuong: m.soLuong || 1,
+                                        donGia: m.donGia || 0,
+                                        thanhTien: (m.donGia || 0) * (m.soLuong || 1),
+                                        trangThai: tt,
+                                        tuyChon: m.tuyChon || '',
+                                        ghiChu: m.ghiChu || ''
+                                    });
+                                }
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('Lỗi đồng bộ quanmoc_pos_phien_ban sang layDanhSachDonTheoBan:', e);
+            }
+        }
+
+        // 4. Tính toán tổng hợp thongKe và tongTienLuyKe
         let tongTienLuyKe = 0;
         let tongSoMon = 0;
         let choXacNhan = 0;
@@ -1778,34 +1840,41 @@ class ApiService {
         let daHuy = 0;
         let tuChoi = 0;
 
-        donCuaBan.forEach(don => {
-            (don.danhSachMon || []).forEach(m => {
-                tongSoMon += (Number(m.soLuong) || 1);
-                if (m.trangThai === 'CHO_XAC_NHAN') choXacNhan += (Number(m.soLuong) || 1);
-                else if (m.trangThai === 'DANG_CHE_BIEN') dangCheBien += (Number(m.soLuong) || 1);
-                else if (m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG') daXong += (Number(m.soLuong) || 1);
-                else if (m.trangThai === 'DA_LEN_MON') daLenMon += (Number(m.soLuong) || 1);
-                else if (m.trangThai === 'DA_HUY') daHuy += (Number(m.soLuong) || 1);
-                else if (m.trangThai === 'TU_CHOI') tuChoi += (Number(m.soLuong) || 1);
+        danhSachDon.forEach(don => {
+            if (don.tongTien === undefined && don.tongTienDon !== undefined) don.tongTien = don.tongTienDon;
+            else if (don.tongTienDon === undefined && don.tongTien !== undefined) don.tongTienDon = don.tongTien;
 
-                // Chỉ tính tiền các món không bị hủy hoặc từ chối
-                if (m.trangThai !== 'DA_HUY' && m.trangThai !== 'TU_CHOI') {
-                    tongTienLuyKe += Number(m.thanhTien || 0);
+            (don.danhSachMon || []).forEach(m => {
+                const sl = Number(m.soLuong) || 1;
+                const tt = m.trangThai || 'CHO_XAC_NHAN';
+
+                if (tt !== 'DA_HUY' && tt !== 'TU_CHOI') {
+                    tongSoMon += sl;
+                    tongTienLuyKe += Number(m.thanhTien || (m.donGia * sl) || 0);
                 }
+
+                if (tt === 'CHO_XAC_NHAN' || tt === 'CHO_CHE_BIEN') choXacNhan += sl;
+                else if (tt === 'DANG_CHE_BIEN') dangCheBien += sl;
+                else if (tt === 'DA_XONG' || tt === 'DA_NAU_XONG' || tt === 'DA_CHE_BIEN') daXong += sl;
+                else if (tt === 'DA_LEN_MON' || tt === 'DA_PHUC_VU') daLenMon += sl;
+                else if (tt === 'DA_HUY') daHuy += sl;
+                else if (tt === 'TU_CHOI') tuChoi += sl;
             });
         });
 
-        // Lấy thông tin bàn
-        const dsBan = await this.layDanhSachBanAn();
-        const ban = dsBan.find(b => Number(b.id) === Number(banId) || b.maBan === String(banId));
+        // 5. Lấy thông tin bàn ăn
+        if (!banInfo) {
+            const dsBan = await this.layDanhSachBanAn();
+            banInfo = (dsBan || []).find(b => Number(b.id) === Number(banId) || b.maBan === String(banId));
+        }
 
         return {
             ok: true,
             data: {
                 banId: Number(banId) || banId,
-                soBan: ban ? ban.soBan : `Bàn ${banId}`,
-                khuVucTen: ban ? (ban.khuVucTen || 'Tầng 1') : '',
-                danhSachDon: donCuaBan,
+                soBan: banInfo ? (banInfo.soBan || banInfo.tenBan) : `Bàn ${banId}`,
+                khuVucTen: banInfo ? (banInfo.khuVucTen || banInfo.tenKhuVuc || 'Tầng 1') : 'Tầng 1',
+                danhSachDon,
                 tongTienLuyKe,
                 thongKe: {
                     tongSoMon,
@@ -2182,7 +2251,7 @@ class ApiService {
                         if (mPos) {
                             let posTt = trangThaiMoi;
                             if (trangThaiMoi === 'DA_LEN_MON' || trangThaiMoi === 'DA_PHUC_VU') posTt = 'DA_PHUC_VU';
-                            else if (trangThaiMoi === 'DA_XONG' || trangThaiMoi === 'DA_NAU_XONG') posTt = 'DA_CHE_BIEN';
+                            else if (trangThaiMoi === 'DA_XONG' || trangThaiMoi === 'DA_NAU_XONG' || trangThaiMoi === 'DA_CHE_BIEN') posTt = 'DA_XONG';
                             else if (trangThaiMoi === 'DANG_CHE_BIEN') posTt = 'DANG_CHE_BIEN';
                             mPos.trangThai = posTt;
                             mPos.thoiGianCapNhat = new Date().toISOString();

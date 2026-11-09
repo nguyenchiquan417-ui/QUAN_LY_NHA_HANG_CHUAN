@@ -5,10 +5,15 @@ const { taoTokenBaoMatQr, taoDuongDanQrBan, taoAnhQrDataUrl } = require('../../t
 async function layDanhSachBanAn(boLoc) {
     const danhSach = await banAnModel.layTatCa(boLoc);
     // Bổ sung thông tin URL mã QR cho từng bàn
-    return danhSach.map(ban => ({
-        ...ban,
-        duongDanQr: taoDuongDanQrBan(ban.id, ban.tokenBaoMat, ban.maBan)
-    }));
+    return danhSach.map(ban => {
+        const token = ban.tokenBaoMat || ban.qrToken || ban.tokenQr || `tok_dev_${ban.id}`;
+        return {
+            ...ban,
+            qrToken: token,
+            tokenBaoMat: token,
+            duongDanQr: taoDuongDanQrBan(ban.id, token, ban.maBan)
+        };
+    });
 }
 
 async function layChiTietBanAn(id) {
@@ -18,9 +23,12 @@ async function layChiTietBanAn(id) {
         loi.status = 404;
         throw loi;
     }
-    const duongDanQr = taoDuongDanQrBan(ban.id, ban.tokenBaoMat, ban.maBan);
+    const token = ban.tokenBaoMat || ban.qrToken || ban.tokenQr || `tok_dev_${ban.id}`;
+    const duongDanQr = taoDuongDanQrBan(ban.id, token, ban.maBan);
     return {
         ...ban,
+        qrToken: token,
+        tokenBaoMat: token,
         duongDanQr
     };
 }

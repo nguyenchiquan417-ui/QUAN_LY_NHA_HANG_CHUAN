@@ -105,10 +105,11 @@ class QuanLyBanQrModule {
                         </button>
                         ${this.danhSachKhuVuc.map(kv => {
                             const soBanTheoKv = this.danhSachBan.filter(b => b.khuVucId === kv.id).length;
+                            const tenKv = kv.ten || kv.tenKhuVuc || `Khu vực ${kv.id}`;
                             return `
                                 <button class="tab-khu-vuc ${this.khuVucDangChon === kv.id ? 'kich-hoat' : ''}" 
                                         onclick="window.quanLyBanQr.chonKhuVuc(${kv.id})">
-                                    ${window.DinhDang.thoatHtml(kv.ten)} (${soBanTheoKv})
+                                    ${window.DinhDang.thoatHtml(tenKv)} (${soBanTheoKv})
                                 </button>
                             `;
                         }).join('')}
@@ -140,7 +141,7 @@ class QuanLyBanQrModule {
 
     veTheBan(ban) {
         const khuVuc = this.danhSachKhuVuc.find(k => k.id === ban.khuVucId);
-        const tenKhuVuc = khuVuc ? khuVuc.ten : (ban.khuVucTen || 'Chưa phân khu');
+        const tenKhuVuc = khuVuc ? (khuVuc.ten || khuVuc.tenKhuVuc) : (ban.khuVucTen || 'Chưa phân khu');
         const tokenBaoMat = ban.qrToken || ban.tokenBaoMat || '';
         const urlQr = window.BoSinhQr.taoDuongDanBanAn(ban.maBan, tokenBaoMat, ban.id);
         const anhQrUrl = window.BoSinhQr.layUrlAnhQr(urlQr, 120);
@@ -213,7 +214,7 @@ class QuanLyBanQrModule {
         this.banDangChon = ban;
 
         const khuVuc = this.danhSachKhuVuc.find(k => k.id === ban.khuVucId);
-        const tenKhuVuc = khuVuc ? khuVuc.ten : 'Quán Mộc';
+        const tenKhuVuc = khuVuc ? (khuVuc.ten || khuVuc.tenKhuVuc) : 'Quán Mộc';
         const tokenBaoMat = ban.qrToken || ban.tokenBaoMat || '';
         const urlQr = window.BoSinhQr.taoDuongDanBanAn(ban.maBan, tokenBaoMat, ban.id);
         const anhQrUrl = window.BoSinhQr.layUrlAnhQr(urlQr, 280);
@@ -335,7 +336,7 @@ class QuanLyBanQrModule {
                     <div class="luoi-in-standee">
                         ${banIn.map(ban => {
                             const kv = this.danhSachKhuVuc.find(k => k.id === ban.khuVucId);
-                            const tenKv = kv ? kv.ten : 'Quán Mộc';
+                            const tenKv = kv ? (kv.ten || kv.tenKhuVuc) : 'Quán Mộc';
                             const tokenBaoMat = ban.qrToken || ban.tokenBaoMat || '';
                             const urlQr = window.BoSinhQr.taoDuongDanBanAn(ban.maBan, tokenBaoMat, ban.id);
                             const anhQrUrl = window.BoSinhQr.layUrlAnhQr(urlQr, 200);
@@ -372,6 +373,11 @@ class QuanLyBanQrModule {
     // MODAL THÊM / SỬA BÀN ĂN (US-025 & US-026)
     // =========================================================================
     moModalThemBan() {
+        if (!this.danhSachKhuVuc || this.danhSachKhuVuc.length === 0) {
+            window.thongBao.canhBao('Chưa có khu vực!', 'Hệ thống chưa có khu vực nào. Vui lòng thêm ít nhất một khu vực (ví dụ: Tầng 1, Tầng 2, Ngoài trời) trước khi thêm bàn ăn.');
+            this.moModalQuanLyKhuVuc();
+            return;
+        }
         this.hienThiModalFormBan(null);
     }
 
@@ -395,13 +401,22 @@ class QuanLyBanQrModule {
                 <form id="form-ban-an" onsubmit="window.quanLyBanQr.luuThongTinBan(event, ${laThemMoi ? 'null' : banHienTai.id})">
                     <div class="than-modal">
                         <div class="nhom-nhap-lieu">
-                            <label>Khu vực / Tầng <span class="bat-buoc">*</span></label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label style="margin-bottom: 0;">Khu vực / Tầng <span class="bat-buoc">*</span></label>
+                                <button type="button" onclick="window.quanLyBanQr.dongModal(); window.quanLyBanQr.moModalQuanLyKhuVuc();" style="font-size: 12px; color: var(--mau-chinh); background: none; border: none; cursor: pointer; text-decoration: underline;">
+                                    📁 Quản lý khu vực
+                                </button>
+                            </div>
                             <select id="nhap-khu-vuc-ban" required>
-                                ${this.danhSachKhuVuc.map(kv => `
-                                    <option value="${kv.id}" ${banHienTai && banHienTai.khuVucId === kv.id ? 'selected' : ''}>
-                                        ${window.DinhDang.thoatHtml(kv.ten)}
-                                    </option>
-                                `).join('')}
+                                ${this.danhSachKhuVuc.length === 0 ? '<option value="" disabled selected>⚠️ Chưa có khu vực nào - Bấm Quản lý khu vực để thêm</option>' : ''}
+                                ${this.danhSachKhuVuc.map(kv => {
+                                    const tenKv = kv.ten || kv.tenKhuVuc || ('Khu vực ' + kv.id);
+                                    return `
+                                        <option value="${kv.id}" ${banHienTai && (banHienTai.khuVucId === kv.id || banHienTai.khuVucId == kv.id) ? 'selected' : ''}>
+                                            ${window.DinhDang.thoatHtml(tenKv)}
+                                        </option>
+                                    `;
+                                }).join('')}
                             </select>
                         </div>
 
@@ -454,6 +469,10 @@ class QuanLyBanQrModule {
     async luuThongTinBan(event, banId) {
         event.preventDefault();
         const khuVucId = Number(document.getElementById('nhap-khu-vuc-ban').value);
+        if (!khuVucId || isNaN(khuVucId)) {
+            window.thongBao.canhBao('Chưa chọn khu vực!', 'Vui lòng chọn hoặc thêm khu vực hợp lệ trước khi lưu bàn.');
+            return;
+        }
         const soBan = document.getElementById('nhap-so-ban').value.trim();
         const maBan = document.getElementById('nhap-ma-ban').value.trim();
         const sucChua = Number(document.getElementById('nhap-suc-chua').value) || 4;
@@ -534,12 +553,14 @@ class QuanLyBanQrModule {
 
                     <!-- Danh sách khu vực -->
                     <div class="danh-sach-khu-vuc-modal">
+                        ${this.danhSachKhuVuc.length === 0 ? '<p style="text-align: center; color: var(--mau-chu-phu); padding: 16px;">Chưa có khu vực nào. Hãy nhập tên ở trên và bấm "Thêm khu vực".</p>' : ''}
                         ${this.danhSachKhuVuc.map(kv => {
                             const soBan = this.danhSachBan.filter(b => b.khuVucId === kv.id).length;
+                            const tenKv = kv.ten || kv.tenKhuVuc || `Khu vực ${kv.id}`;
                             return `
                                 <div class="hang-khu-vuc">
                                     <div class="thong-tin-kv">
-                                        <strong>${window.DinhDang.thoatHtml(kv.ten)}</strong>
+                                        <strong>${window.DinhDang.thoatHtml(tenKv)}</strong>
                                         <span class="chu-phu">(${soBan} bàn)</span>
                                     </div>
                                     <div class="nut-kv">
@@ -570,9 +591,11 @@ class QuanLyBanQrModule {
             id: idMoi,
             ma: `KV_${idMoi}`,
             ten,
+            tenKhuVuc: ten,
             moTa: '',
+            ghiChu: '',
             thuTu: this.danhSachKhuVuc.length + 1,
-            trangThai: 1
+            trangThai: 'HoatDong'
         });
 
         await window.api.luuDanhSachKhuVuc(this.danhSachKhuVuc);
@@ -584,9 +607,10 @@ class QuanLyBanQrModule {
     async suaTenKhuVuc(khuVucId) {
         const kv = this.danhSachKhuVuc.find(k => k.id === khuVucId);
         if (!kv) return;
-        const tenMoi = prompt('Nhập tên mới cho khu vực:', kv.ten);
-        if (tenMoi && tenMoi.trim() && tenMoi.trim() !== kv.ten) {
+        const tenMoi = prompt('Nhập tên mới cho khu vực:', kv.ten || kv.tenKhuVuc || '');
+        if (tenMoi && tenMoi.trim() && tenMoi.trim() !== (kv.ten || kv.tenKhuVuc)) {
             kv.ten = tenMoi.trim();
+            kv.tenKhuVuc = tenMoi.trim();
             await window.api.luuDanhSachKhuVuc(this.danhSachKhuVuc);
             window.thongBao.thanhCong('Đã cập nhật tên khu vực!');
             this.moModalQuanLyKhuVuc();

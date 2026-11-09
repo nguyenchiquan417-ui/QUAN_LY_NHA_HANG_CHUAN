@@ -1,1 +1,38 @@
-[]
+[
+  {
+    "id": 1,
+    "ma": "KV_1",
+    "ten": "Tầng 1",
+    "tenKhuVuc": "Tầng 1",
+    "ghiChu": "Khu vực tầng 1 trong nhà",
+    "thuTu": 1,
+    "trangThai": "HoatDong"
+  },
+  {
+    "id": 2,
+    "ma": "KV_2",
+    "ten": "Tầng 2",
+    "tenKhuVuc": "Tầng 2",
+    "ghiChu": "Khu vực tầng 2 lầu cao",
+    "thuTu": 2,
+    "trangThai": "HoatDong"
+  },
+  {
+    "id": 3,
+    "ma": "KV_3",
+    "ten": "Ngoài trời",
+    "tenKhuVuc": "Ngoài trời",
+    "ghiChu": "Khu vực sân vườn ngoài trời thoáng mát",
+    "thuTu": 3,
+    "trangThai": "HoatDong"
+  },
+  {
+    "id": 4,
+    "ma": "KV_4",
+    "ten": "Phòng VIP",
+    "tenKhuVuc": "Phòng VIP",
+    "ghiChu": "Khu vực phòng VIP máy lạnh riêng tư",
+    "thuTu": 4,
+    "trangThai": "HoatDong"
+  }
+]

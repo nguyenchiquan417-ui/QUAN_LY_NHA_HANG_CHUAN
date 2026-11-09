@@ -28,10 +28,10 @@ function layDb() {
 
 function dongBoVaoSqlite(tenTep, duLieu) {
     const db = layDb();
-    if (!db || !Array.isArray(duLieu)) return;
+    if (!db || !duLieu) return;
 
     try {
-        if (tenTep === 'thucDon') {
+        if (tenTep === 'thucDon' && Array.isArray(duLieu)) {
             db.exec('PRAGMA foreign_keys = OFF;');
             db.exec('DELETE FROM hinh_anh_mon_an; DELETE FROM mon_an;');
             const stmtMon = db.prepare('INSERT INTO mon_an (id, danh_muc_id, ten_mon, gia_ban, don_vi_tinh, mo_ta, trang_thai, la_mon_ban_chay) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
@@ -43,7 +43,7 @@ function dongBoVaoSqlite(tenTep, duLieu) {
                 }
             }
             db.exec('PRAGMA foreign_keys = ON;');
-        } else if (tenTep === 'banAn') {
+        } else if (tenTep === 'banAn' && Array.isArray(duLieu)) {
             db.exec('PRAGMA foreign_keys = OFF;');
             db.exec('DELETE FROM ban_an;');
             const stmtBan = db.prepare('INSERT INTO ban_an (id, khu_vuc_id, ma_ban, ten_ban, suc_chua, trang_thai) VALUES (?, ?, ?, ?, ?, ?)');
@@ -55,7 +55,7 @@ function dongBoVaoSqlite(tenTep, duLieu) {
                 }
             }
             db.exec('PRAGMA foreign_keys = ON;');
-        } else if (tenTep === 'danhMucMon') {
+        } else if (tenTep === 'danhMucMon' && Array.isArray(duLieu)) {
             db.exec('PRAGMA foreign_keys = OFF;');
             db.exec('DELETE FROM danh_muc_mon;');
             const stmt = db.prepare('INSERT INTO danh_muc_mon (id, ten_danh_muc, thu_tu_hien_thi, trang_thai) VALUES (?, ?, ?, ?)');
@@ -63,7 +63,7 @@ function dongBoVaoSqlite(tenTep, duLieu) {
                 stmt.run(dm.id, dm.tenDanhMuc || dm.ten, dm.thuTuHienThi || dm.thuTu || 0, dm.trangThai || 'HoatDong');
             }
             db.exec('PRAGMA foreign_keys = ON;');
-        } else if (tenTep === 'khuVuc') {
+        } else if (tenTep === 'khuVuc' && Array.isArray(duLieu)) {
             db.exec('PRAGMA foreign_keys = OFF;');
             db.exec('DELETE FROM khu_vuc;');
             const stmt = db.prepare('INSERT INTO khu_vuc (id, ten_khu_vuc, ghi_chu, trang_thai) VALUES (?, ?, ?, ?)');
@@ -71,7 +71,30 @@ function dongBoVaoSqlite(tenTep, duLieu) {
                 stmt.run(kv.id, kv.tenKhuVuc || kv.ten, kv.ghiChu || kv.moTa || '', kv.trangThai || 'HoatDong');
             }
             db.exec('PRAGMA foreign_keys = ON;');
-        } else if (tenTep === 'donGoiMon') {
+        } else if (tenTep === 'nhanVien' && Array.isArray(duLieu)) {
+            db.exec('PRAGMA foreign_keys = OFF;');
+            const stmtTk = db.prepare('INSERT OR REPLACE INTO tai_khoan (id, ten_dang_nhap, mat_khau, email, trang_thai) VALUES (?, ?, ?, ?, ?)');
+            const stmtNv = db.prepare('INSERT OR REPLACE INTO nhan_vien (id, tai_khoan_id, ho_ten, so_dien_thoai, email, vai_tro_id, trang_thai) VALUES (?, ?, ?, ?, ?, ?, ?)');
+            const vaiTroIdMap = {
+                'QuanLy': 1, 'QUAN_LY': 1,
+                'ThuNgan': 2, 'THU_NGAN': 2,
+                'Bep': 3, 'BEP': 3,
+                'PhucVu': 4, 'PHUC_VU': 4
+            };
+            for (const nv of duLieu) {
+                const vtId = vaiTroIdMap[nv.vaiTro] || 4;
+                stmtTk.run(nv.id, nv.tenDangNhap, nv.matKhau || '$2a$10$DSxFp6IG8d2HuX1.In3ffeTkaO1NE6c/udEDalY5IxecYekgzWQhS', nv.email || '', nv.trangThai || 'HoatDong');
+                stmtNv.run(nv.id, nv.id, nv.hoTen || nv.tenDangNhap, nv.soDienThoai || '', nv.email || '', vtId, nv.trangThai || 'HoatDong');
+            }
+            db.exec('PRAGMA foreign_keys = ON;');
+        } else if (tenTep === 'cauHinhNhaHang' && typeof duLieu === 'object' && !Array.isArray(duLieu)) {
+            db.exec('PRAGMA foreign_keys = OFF;');
+            const stmt = db.prepare('INSERT OR REPLACE INTO cau_hinh_nha_hang (ma_cau_hinh, gia_tri, kieu_du_lieu, mo_ta) VALUES (?, ?, ?, ?)');
+            for (const [k, v] of Object.entries(duLieu)) {
+                stmt.run(k, typeof v === 'object' ? JSON.stringify(v) : String(v), typeof v, `Cấu hình ${k}`);
+            }
+            db.exec('PRAGMA foreign_keys = ON;');
+        } else if (tenTep === 'donGoiMon' && Array.isArray(duLieu)) {
             db.exec('PRAGMA foreign_keys = OFF;');
             db.exec('DELETE FROM chi_tiet_don_hang; DELETE FROM don_hang; DELETE FROM phien_phuc_vu;');
             const stmtPhien = db.prepare('INSERT OR IGNORE INTO phien_phuc_vu (id, ban_an_id, ma_phien, token_phien_hash, trang_thai) VALUES (?, ?, ?, ?, ?)');
@@ -176,4 +199,3 @@ module.exports = {
     THU_MUC_DU_LIEU,
     DUONG_DAN_SQLITE
 };
-

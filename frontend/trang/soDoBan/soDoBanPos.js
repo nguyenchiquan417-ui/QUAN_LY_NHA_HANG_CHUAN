@@ -391,8 +391,17 @@ class SoDoBanPosModule {
         const el = document.getElementById('danh-sach-nut-trang-thai');
         if (!el) return;
 
+        const dsPhien = this.layTatCaPhienBan() || {};
+        const soBanChoBung = dsBan.filter(b => {
+            const phien = dsPhien[b.id];
+            return phien && Array.isArray(phien.danhSachMon) && phien.danhSachMon.some(m => 
+                m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG' || m.trangThai === 'DA_CHE_BIEN'
+            );
+        }).length;
+
         const cacTrangThai = [
             { ma: 'TAT_CA', ten: 'Tất cả trạng thái' },
+            { ma: 'CHO_BUNG', ten: `🔔 Chờ bưng món (${soBanChoBung})`, noiBat: soBanChoBung > 0 },
             { ma: 'TRONG', ten: '🟢 Trống' },
             { ma: 'DANG_DUNG', ten: '🔵 Đang phục vụ' },
             { ma: 'CHO_THANH_TOAN', ten: '🟡 Chờ thanh toán' },
@@ -401,8 +410,9 @@ class SoDoBanPosModule {
 
         let html = '';
         cacTrangThai.forEach(tt => {
+            const noiBatStyle = tt.noiBat ? 'background: #dcfce7; color: #15803d; border-color: #86efac; font-weight: 700;' : '';
             html += `
-                <button class="nut-pill-trang-thai ${this.boLocTrangThai === tt.ma ? 'kich-hoat' : ''}" onclick="window.soDoBanPos.chuyenLocTrangThai('${tt.ma}')">
+                <button class="nut-pill-trang-thai ${this.boLocTrangThai === tt.ma ? 'kich-hoat' : ''}" style="${noiBatStyle}" onclick="window.soDoBanPos.chuyenLocTrangThai('${tt.ma}')">
                     ${tt.ten}
                 </button>
             `;
@@ -436,7 +446,14 @@ class SoDoBanPosModule {
         }
 
         // Lọc theo trạng thái
-        if (this.boLocTrangThai !== 'TAT_CA') {
+        if (this.boLocTrangThai === 'CHO_BUNG') {
+            ds = ds.filter(b => {
+                const phien = dsPhien[b.id];
+                return phien && Array.isArray(phien.danhSachMon) && phien.danhSachMon.some(m => 
+                    m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG' || m.trangThai === 'DA_CHE_BIEN'
+                );
+            });
+        } else if (this.boLocTrangThai !== 'TAT_CA') {
             ds = ds.filter(b => b.trangThai === this.boLocTrangThai);
         }
 
@@ -476,6 +493,13 @@ class SoDoBanPosModule {
                 ? phien.danhSachMon.filter(m => m.trangThai === 'CHO_XAC_NHAN' || m.trangThai === 'DANG_CHE_BIEN').length
                 : 0;
 
+            // Kiểm tra các món bếp đã nấu xong đang chờ nhân viên bưng lên bàn
+            const cacMonChoBung = (phien && Array.isArray(phien.danhSachMon))
+                ? phien.danhSachMon.filter(m => m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG' || m.trangThai === 'DA_CHE_BIEN')
+                : [];
+            const soMonChoBung = cacMonChoBung.reduce((sum, m) => sum + (m.soLuong || 1), 0);
+            const coMonChoBung = soMonChoBung > 0;
+
             // Xác định class và nhãn trạng thái
             const laDangDung = (ban.trangThai === 'DANG_DUNG' || ban.trangThai === 'DangDung' || ban.trangThai === 'DangPhucVu');
             const laChoThanhToan = (ban.trangThai === 'CHO_THANH_TOAN' || ban.trangThai === 'ChoThanhToan');
@@ -498,6 +522,10 @@ class SoDoBanPosModule {
                 nhanTrangThai = 'Tạm khóa';
             }
 
+            if (coMonChoBung) {
+                lopTrangThai += ' the-ban-cho-bung';
+            }
+
             const laBanDangPhucVu = laDangDung || laChoThanhToan || laCanHoTro;
 
             html += `
@@ -507,7 +535,10 @@ class SoDoBanPosModule {
                             <span class="ma-ban-badge">${ban.maBan || 'B' + ban.id}</span>
                             <span class="khu-vuc-badge">${tenKhuVuc}</span>
                         </div>
-                        <span class="badge-trang-thai-ban">${nhanTrangThai}</span>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            ${coMonChoBung ? `<span class="badge-cho-bung-pulse" title="Bếp đã nấu xong, chờ nhân viên bưng lên bàn">🔔 Xong ${soMonChoBung} món!</span>` : ''}
+                            <span class="badge-trang-thai-ban">${nhanTrangThai}</span>
+                        </div>
                     </div>
 
                     <div class="than-the-ban">
@@ -518,6 +549,11 @@ class SoDoBanPosModule {
                         </div>
 
                         ${laBanDangPhucVu ? `
+                            ${coMonChoBung ? `
+                                <div class="canh-bao-cho-bung-nhanh">
+                                    🔔 <strong>Có ${soMonChoBung} món nấu xong!</strong> Chờ bưng lên bàn
+                                </div>
+                            ` : ''}
                             <div class="hop-chi-tiet-gia-ban">
                                 <div class="so-tien-tam-tinh">${window.DinhDang && window.DinhDang.tienVnd ? window.DinhDang.tienVnd(tongTien) : tongTien.toLocaleString() + ' đ'}</div>
                                 <div class="so-mon-badge">
@@ -538,6 +574,11 @@ class SoDoBanPosModule {
                                 ✨ Mở Bàn Mới
                             </button>
                         ` : `
+                            ${coMonChoBung ? `
+                                <button class="nut-thao-tac-ban nut-bung-mon-nhanh" onclick="window.soDoBanPos.bungTatCaMonDaXong(${ban.id})" title="Xác nhận nhân viên bưng các món nấu xong lên bàn cho khách">
+                                    🚶 BƯNG LÊN BÀN (${soMonChoBung})
+                                </button>
+                            ` : ''}
                             <button class="nut-thao-tac-ban nut-xem-don" onclick="window.soDoBanPos.moModalChiTietDon(${ban.id})" title="Xem chi tiết đơn, đổi trả món (US-089 -> US-091, US-096)">
                                 📋 Xem Đơn
                             </button>
@@ -650,6 +691,12 @@ class SoDoBanPosModule {
         const tongTien = this.tinhTongTienBan(phien);
         const soPhut = this.tinhSoPhutNgoi(phien.thoiGianBatDau);
 
+        // Lọc các món bếp đã xong đang chờ bưng
+        const cacMonChoBung = (phien.danhSachMon || []).filter(m => 
+            m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG' || m.trangThai === 'DA_CHE_BIEN'
+        );
+        const soMonChoBung = cacMonChoBung.reduce((sum, m) => sum + (m.soLuong || 1), 0);
+
         let danhSachMonHtml = '';
         if (phien.danhSachMon.length === 0) {
             danhSachMonHtml = `
@@ -662,16 +709,17 @@ class SoDoBanPosModule {
         } else {
             phien.danhSachMon.forEach((m, idx) => {
                 let badgeStatus = '';
+                const laMonChoBung = (m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG' || m.trangThai === 'DA_CHE_BIEN');
                 if (m.trangThai === 'CHO_XAC_NHAN') badgeStatus = '<span class="badge badge-xam">Chờ xác nhận</span>';
                 else if (m.trangThai === 'DANG_CHE_BIEN') badgeStatus = '<span class="badge badge-vang">👨‍🍳 Đang chế biến</span>';
-                else if (m.trangThai === 'DA_XONG') badgeStatus = '<span class="badge badge-xanh-la">🔔 Bếp đã nấu xong</span>';
-                else if (m.trangThai === 'DA_PHUC_VU') badgeStatus = '<span class="badge badge-xanh-duong">✓ Đã phục vụ</span>';
+                else if (laMonChoBung) badgeStatus = '<span class="badge badge-xanh-la badge-cho-bung-pulse">🔔 Bếp đã nấu xong</span>';
+                else if (m.trangThai === 'DA_PHUC_VU' || m.trangThai === 'DA_LEN_MON') badgeStatus = '<span class="badge badge-xanh-duong">✓ Đã phục vụ</span>';
                 else if (m.trangThai === 'DA_HUY') badgeStatus = '<span class="badge badge-do">✕ Đã hủy</span>';
 
                 const thanhTien = m.donGia * m.soLuong;
 
                 danhSachMonHtml += `
-                    <tr class="${m.trangThai === 'DA_HUY' ? 'dong-mon-da-huy' : ''}">
+                    <tr class="${m.trangThai === 'DA_HUY' ? 'dong-mon-da-huy' : ''} ${laMonChoBung ? 'dong-mon-cho-bung' : ''}">
                         <td style="text-align: center;">${idx + 1}</td>
                         <td>
                             <strong>${m.tenMon}</strong>
@@ -685,9 +733,9 @@ class SoDoBanPosModule {
                             <div style="margin-bottom: 6px;">${badgeStatus}</div>
                             ${m.trangThai !== 'DA_HUY' ? `
                                 <div class="nhom-nut-thao-tac-mon">
-                                    ${m.trangThai !== 'DA_PHUC_VU' ? `
-                                        <button class="nut-mini nut-mini-xanh" onclick="window.soDoBanPos.xacNhanDaPhucVu(${banId}, ${m.id})" title="Xác nhận đã bưng lên bàn cho khách (US-096)">
-                                            ✓ Đã lên
+                                    ${(m.trangThai !== 'DA_PHUC_VU' && m.trangThai !== 'DA_LEN_MON') ? `
+                                        <button class="nut-mini ${laMonChoBung ? 'nut-mini-xanh nut-bung-nhanh-mini' : 'nut-mini-xam'}" onclick="window.soDoBanPos.xacNhanDaPhucVu(${banId}, ${m.id})" title="Xác nhận đã bưng lên bàn cho khách (US-096)">
+                                            ${laMonChoBung ? '🚶 Đã bưng lên' : '✓ Đã lên'}
                                         </button>
                                     ` : ''}
                                     <button class="nut-mini nut-mini-do" onclick="window.soDoBanPos.moModalHuyTraMon(${banId}, ${m.id})" title="Hủy món hoặc đổi trả món (US-089, US-090)">
@@ -713,6 +761,17 @@ class SoDoBanPosModule {
                     <button class="nut-dong-modal" onclick="window.soDoBanPos.dongModal()">✕</button>
                 </div>
                 <div class="than-modal" style="max-height: 70vh; overflow-y: auto;">
+                    ${soMonChoBung > 0 ? `
+                        <div class="banner-thong-bao-cho-bung">
+                            <div>
+                                <strong>🔔 Bếp đã nấu xong ${soMonChoBung} món!</strong>
+                                <div style="font-size: 12.5px; margin-top: 2px;">Món đã sẵn sàng tại quầy ra món, vui lòng bưng lên bàn cho khách.</div>
+                            </div>
+                            <button class="nut nut-xanh nut-nho" onclick="window.soDoBanPos.bungTatCaMonDaXong(${banId})">
+                                🚶 BƯNG TẤT CẢ MÓN ĐÃ XONG (${soMonChoBung})
+                            </button>
+                        </div>
+                    ` : ''}
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <span style="font-weight: 700;">Danh sách món ăn của bàn:</span>
                         <button class="nut nut-phu nut-nho" onclick="window.soDoBanPos.dongModal(); window.soDoBanPos.moModalGoiMonHo(${banId})">
@@ -762,9 +821,57 @@ class SoDoBanPosModule {
     }
 
     /**
+     * Bưng tất cả các món bếp đã nấu xong lên bàn cho khách
+     */
+    async bungTatCaMonDaXong(banId) {
+        const dsBan = await window.api.layDanhSachBan();
+        const ban = dsBan.find(b => b.id == banId);
+        const dsPhien = this.layTatCaPhienBan();
+        const phien = dsPhien[banId];
+        if (!phien || !Array.isArray(phien.danhSachMon)) return;
+
+        const cacMon = phien.danhSachMon.filter(m => 
+            m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG' || m.trangThai === 'DA_CHE_BIEN'
+        );
+        if (cacMon.length === 0) {
+            if (window.thongBao) window.thongBao.thongTin('Thông báo', 'Bàn này hiện không có món nào đang chờ bưng.');
+            return;
+        }
+
+        for (const m of cacMon) {
+            m.trangThai = 'DA_PHUC_VU';
+            try {
+                await window.api.capNhatTrangThaiMonAn(m.id, banId, 'DA_LEN_MON');
+            } catch (e) {
+                console.warn('Lỗi cập nhật trạng thái món lên server:', e);
+            }
+        }
+
+        this.luuTatCaPhienBan(dsPhien);
+
+        if (window.thongBao) {
+            window.thongBao.thanhCong(
+                'Đã bưng món lên bàn! 🎉',
+                `Đã phục vụ thành công ${cacMon.length} món lên ${ban ? ban.soBan : 'Bàn ' + banId}.`
+            );
+        }
+
+        // Tải lại modal chi tiết đơn nếu đang mở
+        const modal = document.getElementById('khung-modal-toan-cuc');
+        if (modal && modal.classList.contains('mo')) {
+            const tieuDeModal = modal.querySelector('.dau-modal h3');
+            if (tieuDeModal && tieuDeModal.textContent.includes('Chi Tiết Đơn Hàng')) {
+                this.moModalChiTietDon(banId);
+            }
+        }
+
+        await this.taiVaHienThi();
+    }
+
+    /**
      * US-096: Xác nhận món ăn đã phục vụ lên bàn
      */
-    xacNhanDaPhucVu(banId, monId) {
+    async xacNhanDaPhucVu(banId, monId) {
         const dsPhien = this.layTatCaPhienBan();
         const phien = dsPhien[banId];
         if (!phien) return;
@@ -773,6 +880,11 @@ class SoDoBanPosModule {
         if (mon) {
             mon.trangThai = 'DA_PHUC_VU';
             this.luuTatCaPhienBan(dsPhien);
+            try {
+                await window.api.capNhatTrangThaiMonAn(mon.id, banId, 'DA_LEN_MON');
+            } catch (e) {
+                console.warn('Lỗi cập nhật trạng thái món lên server:', e);
+            }
             if (window.thongBao) window.thongBao.thanhCong('Đã lên món', `Đã đánh dấu "${mon.tenMon}" là ĐÃ PHỤC VỤ.`);
             this.moModalChiTietDon(banId); // Tải lại modal
             this.taiVaHienThi(); // Tải lại lưới
@@ -855,7 +967,7 @@ class SoDoBanPosModule {
     }
 
     // =========================================================================
-    // US-095: GỌI MÓN HỘ KHÁCH (NHÂN VIÊN ĐẶT MÓN TẠI BÀN)
+    // US-095: GỌI MÓN HỘ KHÁCH (NHÂN VIÊN ĐẶT MÓN TẠI BÀN - GIAO DIỆN CHUẨN POS)
     // =========================================================================
     async moModalGoiMonHo(banId) {
         const dsBan = await window.api.layDanhSachBan();
@@ -866,22 +978,35 @@ class SoDoBanPosModule {
         const modal = document.getElementById('khung-modal-toan-cuc');
         if (!modal || !ban) return;
 
-        let danhSachDanhMucHtml = '<button class="nut-tab-dm kich-hoat" onclick="window.soDoBanPos.locMonGoiHo(\'TAT_CA\')">Tất cả</button>';
+        const dsPhien = this.layTatCaPhienBan() || {};
+        const phien = dsPhien[banId] || { danhSachMon: [] };
+        const mapSoLuong = {};
+        (phien.danhSachMon || []).forEach(m => {
+            if (m.trangThai !== 'DA_HUY') {
+                mapSoLuong[m.monAnId] = (mapSoLuong[m.monAnId] || 0) + (m.soLuong || 1);
+            }
+        });
+
+        let danhSachDanhMucHtml = '<button class="nut-tab-dm kich-hoat" onclick="window.soDoBanPos.locMonGoiHo(\'TAT_CA\')">🍽️ Tất cả</button>';
         dsDanhMuc.forEach(dm => {
-            danhSachDanhMucHtml += `<button class="nut-tab-dm" onclick="window.soDoBanPos.locMonGoiHo(${dm.id})">${dm.bieuTuong || ''} ${dm.ten}</button>`;
+            danhSachDanhMucHtml += `<button class="nut-tab-dm" onclick="window.soDoBanPos.locMonGoiHo(${dm.id})">${dm.bieuTuong || '🏷️'} ${dm.ten || dm.tenDanhMuc}</button>`;
         });
 
         let danhSachMonHtml = '';
         dsMon.forEach(m => {
-            const tamHet = (m.trangThai === 0);
+            const tamHet = (m.trangThai === 0 || m.trangThai === 'TamHet');
+            const soLuong = mapSoLuong[m.id] || 0;
             danhSachMonHtml += `
-                <div class="the-mon-goi-ho ${tamHet ? 'mon-tam-het' : ''}" data-danh-muc="${m.danhMucId}" data-ten="${m.tenMon.toLowerCase()}">
-                    <img src="${m.hinhAnh || ''}" alt="${m.tenMon}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'">
+                <div class="the-mon-goi-ho ${tamHet ? 'mon-tam-het' : ''}" id="the-mon-gh-${m.id}" data-danh-muc="${m.danhMucId}" data-ten="${(m.tenMon || '').toLowerCase()}">
+                    <div class="anh-mon-wrap-gh">
+                        <img src="${m.hinhAnh || ''}" alt="${m.tenMon}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300'">
+                        <span class="badge-da-chon-gh" id="badge-mon-gh-${m.id}" style="${soLuong > 0 ? '' : 'display:none;'}">x${soLuong}</span>
+                    </div>
                     <div class="thong-tin-mon-goi-ho">
-                        <div class="ten-mon-gh">${m.tenMon}</div>
+                        <div class="ten-mon-gh" title="${window.DinhDang ? window.DinhDang.thoatHtml(m.tenMon) : m.tenMon}">${window.DinhDang ? window.DinhDang.thoatHtml(m.tenMon) : m.tenMon}</div>
                         <div class="gia-mon-gh">${(m.giaBan || 0).toLocaleString()} đ</div>
-                        ${tamHet ? '<span class="badge badge-do">Tạm hết</span>' : `
-                            <button class="nut nut-chinh nut-mini" onclick="window.soDoBanPos.themMonVaoBan(${banId}, ${m.id})">
+                        ${tamHet ? '<span class="badge badge-do" style="text-align:center; padding: 4px;">Tạm hết</span>' : `
+                            <button class="nut-them-mon-gh" onclick="window.soDoBanPos.themMonVaoBan(${banId}, ${m.id})">
                                 ➕ Thêm vào bàn
                             </button>
                         `}
@@ -890,30 +1015,151 @@ class SoDoBanPosModule {
             `;
         });
 
+        const tongMon = (phien.danhSachMon || []).filter(m => m.trangThai !== 'DA_HUY').reduce((s, m) => s + (m.soLuong || 1), 0);
+        const tongTien = (phien.danhSachMon || []).filter(m => m.trangThai !== 'DA_HUY').reduce((s, m) => s + (m.donGia * (m.soLuong || 1)), 0);
+
         modal.innerHTML = `
-            <div class="hop-modal hop-modal-lon">
+            <div class="hop-modal hop-modal-lon modal-goi-mon-ho">
                 <div class="dau-modal">
-                    <h3>🍲 Gọi Món Hộ Khách (US-095) — ${ban.soBan}</h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 26px;">🍲</span>
+                        <div>
+                            <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #1e293b;">Gọi Món Hộ Khách — ${ban.soBan}</h3>
+                            <span style="font-size: 12.5px; color: #64748b;">Mã bàn: <strong>${ban.maBan}</strong> • Sức chứa: <strong>${ban.sucChua} chỗ</strong> • Trạng thái: <strong style="color: ${ban.trangThai === 'DANG_DUNG' ? '#c2410c' : '#16a34a'};">${ban.trangThai === 'DANG_DUNG' ? 'Đang phục vụ' : 'Bàn trống'}</strong></span>
+                        </div>
+                    </div>
                     <button class="nut-dong-modal" onclick="window.soDoBanPos.dongModal()">✕</button>
                 </div>
-                <div class="than-modal" style="max-height: 70vh; overflow-y: auto;">
-                    <div style="display: flex; gap: 12px; margin-bottom: 14px;">
-                        <input type="text" id="tim-mon-goi-ho" class="o-nhap-lieu" placeholder="🔍 Nhập tên món ăn để tìm nhanh..." oninput="window.soDoBanPos.timMonGoiHo(this.value)">
+
+                <div class="than-modal khung-goi-mon-chia-doi">
+                    <!-- Cột trái: Tìm kiếm + Danh mục + Danh sách món ăn -->
+                    <div class="cot-thuc-don-goi-ho">
+                        <div class="hop-tim-mon-gh">
+                            <span style="color: #94a3b8; font-size: 16px;">🔍</span>
+                            <input type="text" id="tim-mon-goi-ho" class="o-nhap-tim-gh" placeholder="Nhập tên món ăn để tìm nhanh..." oninput="window.soDoBanPos.timMonGoiHo(this.value)">
+                        </div>
+
+                        <div class="thanh-cuon-dm-goi-ho">
+                            ${danhSachDanhMucHtml}
+                        </div>
+
+                        <div class="luoi-mon-goi-ho" id="luoi-mon-goi-ho">
+                            ${danhSachMonHtml}
+                        </div>
                     </div>
-                    <div class="thanh-cuon-dm-goi-ho" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px;">
-                        ${danhSachDanhMucHtml}
-                    </div>
-                    <div class="luoi-mon-goi-ho" id="luoi-mon-goi-ho" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;">
-                        ${danhSachMonHtml}
+
+                    <!-- Cột phải: Đơn hàng hiện tại của bàn -->
+                    <div class="cot-don-hang-goi-ho" id="cot-don-hang-goi-ho">
+                        ${this.veCotDonHangGoiHo(banId)}
                     </div>
                 </div>
-                <div class="chan-modal">
-                    <button class="nut nut-phu" onclick="window.soDoBanPos.moModalChiTietDon(${banId})">Xem đơn hiện tại</button>
-                    <button class="nut nut-chinh" onclick="window.soDoBanPos.dongModal()">Hoàn tất</button>
+
+                <div class="chan-modal chan-modal-goi-ho">
+                    <div class="tom-tat-nhanh-don">
+                        <span>Đã chọn: <strong id="tong-so-luong-gh" style="color: #0f172a;">${tongMon} món</strong></span>
+                        <span style="color: #cbd5e1;">|</span>
+                        <span>Tổng tạm tính: <strong class="gia-tong-gh" id="tong-tien-gh">${tongTien.toLocaleString()} đ</strong></span>
+                    </div>
+                    <div class="nhom-nut-chan-gh">
+                        <button class="nut nut-phu" onclick="window.soDoBanPos.moModalChiTietDon(${banId})">📋 Xem chi tiết đơn</button>
+                        <button class="nut nut-chinh" onclick="window.soDoBanPos.hoanTatGoiMonHo(${banId})">✓ Hoàn tất & Đóng</button>
+                    </div>
                 </div>
             </div>
         `;
         modal.classList.add('mo');
+    }
+
+    veCotDonHangGoiHo(banId) {
+        const dsPhien = this.layTatCaPhienBan() || {};
+        const phien = dsPhien[banId] || { danhSachMon: [] };
+        const dsMon = (phien.danhSachMon || []).filter(m => m.trangThai !== 'DA_HUY');
+
+        const tongTien = dsMon.reduce((s, m) => s + (m.donGia * (m.soLuong || 1)), 0);
+        const tongMon = dsMon.reduce((s, m) => s + (m.soLuong || 1), 0);
+
+        return `
+            <div class="dau-cot-don-gh">
+                <h4>📋 Món Đang Chọn (${tongMon})</h4>
+                <span style="font-size: 12px; color: #64748b;">${dsMon.length} loại món</span>
+            </div>
+
+            <div class="danh-sach-mon-da-chon-gh">
+                ${dsMon.length === 0 ? `
+                    <div class="khung-don-trong-gh">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🍽️</div>
+                        <strong>Bàn chưa có món nào</strong>
+                        <p style="font-size: 12px; margin-top: 4px; color: #94a3b8;">Bấm "➕ Thêm vào bàn" ở thực đơn bên trái để chọn món</p>
+                    </div>
+                ` : dsMon.map(m => `
+                    <div class="hang-mon-da-chon-gh">
+                        <div class="ten-va-gia-mon-chon">
+                            <div class="ten-mon-chon" title="${m.tenMon}">${m.tenMon}</div>
+                            <div class="gia-mon-chon">${(m.donGia || 0).toLocaleString()} đ</div>
+                        </div>
+
+                        <div class="bo-dem-so-luong-gh">
+                            <button class="nut-tang-giam-gh" onclick="window.soDoBanPos.giamSoLuongMonGoiHo(${banId}, ${m.monAnId})" title="Giảm">−</button>
+                            <span class="so-luong-hien-tai-gh">${m.soLuong}</span>
+                            <button class="nut-tang-giam-gh" onclick="window.soDoBanPos.tangSoLuongMonGoiHo(${banId}, ${m.monAnId})" title="Thêm">+</button>
+                        </div>
+
+                        <div class="thanh-tien-mon-chon">
+                            ${((m.donGia || 0) * m.soLuong).toLocaleString()} đ
+                        </div>
+
+                        <button class="nut-xoa-mon-gh" onclick="window.soDoBanPos.xoaMonKhoiGoiHo(${banId}, ${m.monAnId})" title="Xóa món này">🗑️</button>
+                    </div>
+                `).join('')}
+            </div>
+
+            <div class="chan-cot-don-gh">
+                <div class="hang-tong-cong-gh">
+                    <span>Tổng tạm tính:</span>
+                    <strong>${tongTien.toLocaleString()} đ</strong>
+                </div>
+            </div>
+        `;
+    }
+
+    capNhatCotDonHangGoiHo(banId) {
+        const cot = document.getElementById('cot-don-hang-goi-ho');
+        if (cot) {
+            cot.innerHTML = this.veCotDonHangGoiHo(banId);
+        }
+
+        const dsPhien = this.layTatCaPhienBan() || {};
+        const phien = dsPhien[banId] || { danhSachMon: [] };
+        const dsMon = (phien.danhSachMon || []).filter(m => m.trangThai !== 'DA_HUY');
+
+        const tongMon = dsMon.reduce((s, m) => s + (m.soLuong || 1), 0);
+        const tongTien = dsMon.reduce((s, m) => s + (m.donGia * (m.soLuong || 1)), 0);
+
+        const elSl = document.getElementById('tong-so-luong-gh');
+        if (elSl) elSl.innerText = `${tongMon} món`;
+        const elTien = document.getElementById('tong-tien-gh');
+        if (elTien) elTien.innerText = `${tongTien.toLocaleString()} đ`;
+
+        // Cập nhật lại badge số lượng trên từng thẻ món bên trái
+        const mapSoLuong = {};
+        dsMon.forEach(m => {
+            mapSoLuong[m.monAnId] = (mapSoLuong[m.monAnId] || 0) + (m.soLuong || 1);
+        });
+
+        document.querySelectorAll('.the-mon-goi-ho').forEach(el => {
+            const idStr = el.id.replace('the-mon-gh-', '');
+            const monId = Number(idStr);
+            const badge = document.getElementById(`badge-mon-gh-${monId}`);
+            if (badge) {
+                const sl = mapSoLuong[monId] || 0;
+                if (sl > 0) {
+                    badge.innerText = `x${sl}`;
+                    badge.style.display = '';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        });
     }
 
     timMonGoiHo(tuKhoa) {
@@ -926,7 +1172,9 @@ class SoDoBanPosModule {
 
     locMonGoiHo(dmId) {
         document.querySelectorAll('.nut-tab-dm').forEach(b => b.classList.remove('kich-hoat'));
-        event.target.classList.add('kich-hoat');
+        if (window.event && window.event.target) {
+            window.event.target.closest('.nut-tab-dm').classList.add('kich-hoat');
+        }
 
         document.querySelectorAll('.the-mon-goi-ho').forEach(el => {
             const dm = el.getAttribute('data-danh-muc');
@@ -962,10 +1210,8 @@ class SoDoBanPosModule {
         const monDaCo = phien.danhSachMon.find(m => m.monAnId == monId && m.trangThai !== 'DA_HUY');
         if (monDaCo) {
             monDaCo.soLuong += 1;
-            monDaCo.thoiGianTao = thoiGianHienTai;
             monDaCo.thoiGianCapNhat = thoiGianHienTai;
             monDaCo.lanGoiMoi = true;
-            // Nếu món trước đó đã phục vụ xong mà giờ khách gọi thêm thì chuyển lại thành CHO_XAC_NHAN
             if (monDaCo.trangThai === 'DA_PHUC_VU' || monDaCo.trangThai === 'DA_LEN_MON') {
                 monDaCo.trangThai = 'CHO_XAC_NHAN';
             }
@@ -997,7 +1243,60 @@ class SoDoBanPosModule {
             await window.api.capNhatTrangThaiBan(banId, 'DANG_DUNG');
         }
 
-        if (window.thongBao) window.thongBao.thanhCong('Đã thêm món', `Đã thêm 1x "${mon.tenMon}" vào bàn.`);
+        this.capNhatCotDonHangGoiHo(banId);
+        this.taiVaHienThi();
+    }
+
+    tangSoLuongMonGoiHo(banId, monId) {
+        const dsPhien = this.layTatCaPhienBan();
+        const phien = dsPhien[banId];
+        if (!phien) return;
+
+        const mon = (phien.danhSachMon || []).find(m => m.monAnId == monId && m.trangThai !== 'DA_HUY');
+        if (mon) {
+            mon.soLuong += 1;
+            mon.thoiGianCapNhat = new Date().toISOString();
+            this.luuTatCaPhienBan(dsPhien);
+            this.capNhatCotDonHangGoiHo(banId);
+            this.taiVaHienThi();
+        }
+    }
+
+    giamSoLuongMonGoiHo(banId, monId) {
+        const dsPhien = this.layTatCaPhienBan();
+        const phien = dsPhien[banId];
+        if (!phien) return;
+
+        const mon = (phien.danhSachMon || []).find(m => m.monAnId == monId && m.trangThai !== 'DA_HUY');
+        if (mon) {
+            if (mon.soLuong > 1) {
+                mon.soLuong -= 1;
+                mon.thoiGianCapNhat = new Date().toISOString();
+            } else {
+                phien.danhSachMon = phien.danhSachMon.filter(m => !(m.monAnId == monId && m.trangThai !== 'DA_HUY'));
+            }
+            this.luuTatCaPhienBan(dsPhien);
+            this.capNhatCotDonHangGoiHo(banId);
+            this.taiVaHienThi();
+        }
+    }
+
+    xoaMonKhoiGoiHo(banId, monId) {
+        const dsPhien = this.layTatCaPhienBan();
+        const phien = dsPhien[banId];
+        if (!phien) return;
+
+        phien.danhSachMon = (phien.danhSachMon || []).filter(m => !(m.monAnId == monId && m.trangThai !== 'DA_HUY'));
+        this.luuTatCaPhienBan(dsPhien);
+        this.capNhatCotDonHangGoiHo(banId);
+        this.taiVaHienThi();
+    }
+
+    hoanTatGoiMonHo(banId) {
+        this.dongModal();
+        if (window.thongBao) {
+            window.thongBao.thanhCong('Đã lưu gọi món', 'Đơn của bàn đã được cập nhật thành công!');
+        }
         this.taiVaHienThi();
     }
 

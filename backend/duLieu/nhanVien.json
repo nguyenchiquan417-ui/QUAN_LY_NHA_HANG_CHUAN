@@ -2,49 +2,49 @@
   {
     "id": 1,
     "tenDangNhap": "quanly",
-    "matKhau": "$2a$10$8LkPeNx4L7yWb7HSHLWM5OzztENskDfQJ9x/GhAonKQ2wlrCn8HAO",
-    "hoTen": "Nguyễn Văn Quản Lý",
-    "soDienThoai": "0901234567",
-    "email": "quanly@quanmoc.com",
+    "matKhau": "123456",
+    "hoTen": "Minh",
+    "soDienThoai": "0908889999",
+    "email": "minhquanly.admin@quanmoc.com",
     "vaiTro": "QuanLy",
     "trangThai": "HoatDong",
     "ngayTao": "2026-11-05T04:10:45.074Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.074Z"
+    "ngayCapNhat": "2026-11-09T02:12:17.575Z"
   },
   {
     "id": 2,
     "tenDangNhap": "thungan01",
-    "matKhau": "$2a$10$8LkPeNx4L7yWb7HSHLWM5OzztENskDfQJ9x/GhAonKQ2wlrCn8HAO",
+    "matKhau": "123456",
     "hoTen": "Trần Thị Thu Ngân",
     "soDienThoai": "0912345678",
     "email": "thungan@quanmoc.com",
     "vaiTro": "ThuNgan",
     "trangThai": "HoatDong",
     "ngayTao": "2026-11-05T04:10:45.074Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.074Z"
+    "ngayCapNhat": "2026-11-09T02:12:17.575Z"
   },
   {
     "id": 3,
     "tenDangNhap": "bep01",
-    "matKhau": "$2a$10$8LkPeNx4L7yWb7HSHLWM5OzztENskDfQJ9x/GhAonKQ2wlrCn8HAO",
+    "matKhau": "123456",
     "hoTen": "Lê Văn Bếp Trưởng",
     "soDienThoai": "0923456789",
     "email": "bep@quanmoc.com",
     "vaiTro": "Bep",
     "trangThai": "HoatDong",
     "ngayTao": "2026-11-05T04:10:45.074Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.074Z"
+    "ngayCapNhat": "2026-11-09T02:12:17.575Z"
   },
   {
     "id": 4,
     "tenDangNhap": "phucvu01",
-    "matKhau": "$2a$10$8LkPeNx4L7yWb7HSHLWM5OzztENskDfQJ9x/GhAonKQ2wlrCn8HAO",
+    "matKhau": "123456",
     "hoTen": "Phạm Văn Phục Vụ",
     "soDienThoai": "0934567890",
     "email": "phucvu@quanmoc.com",
     "vaiTro": "PhucVu",
     "trangThai": "HoatDong",
     "ngayTao": "2026-11-05T04:10:45.074Z",
-    "ngayCapNhat": "2026-11-05T04:10:45.074Z"
+    "ngayCapNhat": "2026-11-09T02:12:17.575Z"
   }
 ]
