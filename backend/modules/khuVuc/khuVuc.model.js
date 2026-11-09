@@ -1,11 +1,6 @@
 const { docDuLieu, ghiDuLieu } = require('../../tienIch/luuTruDuLieu');
 
-const duLieuKhuVucMacDinh = [
-    { id: 1, tenKhuVuc: 'Tầng 1 (Máy lạnh)', ghiChu: 'Không gian ấm cúng, phù hợp gia đình', trangThai: 'HoatDong', ngayTao: new Date() },
-    { id: 2, tenKhuVuc: 'Tầng 2 (Ngoài trời)', ghiChu: 'Thoáng đãng, ngắm phố xá về đêm', trangThai: 'HoatDong', ngayTao: new Date() },
-    { id: 3, tenKhuVuc: 'Khu Sân Vườn', ghiChu: 'Không gian xanh mát mẻ, tiệc nhóm', trangThai: 'HoatDong', ngayTao: new Date() },
-    { id: 4, tenKhuVuc: 'Phòng VIP', ghiChu: 'Không gian riêng tư, tiếp khách sang trọng', trangThai: 'HoatDong', ngayTao: new Date() }
-];
+const duLieuKhuVucMacDinh = [];
 
 let danhSachKhuVuc = docDuLieu('khuVuc', duLieuKhuVucMacDinh);
 let tuTangId = Math.max(...danhSachKhuVuc.map(kv => kv.id || 0), 0) + 1;

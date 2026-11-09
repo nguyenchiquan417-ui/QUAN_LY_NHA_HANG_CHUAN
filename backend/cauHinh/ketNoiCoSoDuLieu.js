@@ -90,22 +90,7 @@ function damBaoKhoiTaoCsdl() {
             `);
         }
 
-        // Chỉ nạp dữ liệu thực đơn mẫu nếu bảng vừa mới được tạo lần đầu
-        if (bangMoiKhoiTao) {
-            const checkMon = db.prepare("SELECT count(*) as count FROM mon_an").get();
-            if (!checkMon || checkMon.count === 0) {
-                const thucDonJsonPath = path.join(__dirname, '../duLieu/thucDon.json');
-                if (fs.existsSync(thucDonJsonPath)) {
-                    const ds = JSON.parse(fs.readFileSync(thucDonJsonPath, 'utf8'));
-                    if (Array.isArray(ds) && ds.length > 0) {
-                        const stmtMon = db.prepare('INSERT OR REPLACE INTO mon_an (id, danh_muc_id, ten_mon, gia_ban, don_vi_tinh, mo_ta, trang_thai, la_mon_ban_chay) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-                        for (const m of ds) {
-                            stmtMon.run(m.id, m.danhMucId || 1, m.tenMon, m.giaBan || 0, m.donViTinh || 'Phần', m.moTa || '', m.trangThai || 'DangBan', m.laMonBanChay ? 1 : 0);
-                        }
-                    }
-                }
-            }
-        }
+
     } catch (e) {
         console.warn('[CSDL] Lỗi trong damBaoKhoiTaoCsdl:', e.message);
     }

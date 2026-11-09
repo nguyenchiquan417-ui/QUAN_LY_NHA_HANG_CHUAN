@@ -50,9 +50,21 @@ class ApiService {
             clearTimeout(timeoutId);
             this.serverDangChay = (phanHoi.status === 200);
 
-            // Khi kết nối với máy chủ thành công, đánh dấu đã kiểm tra server
+            // Khi kết nối với máy chủ thành công, dọn sạch dữ liệu mẫu cũ trong LocalStorage của trình duyệt
             if (this.serverDangChay && !this.daDonDepKhoCu) {
                 this.daDonDepKhoCu = true;
+                if (!localStorage.getItem('quanmoc_dong_bo_jollibee_v1')) {
+                    localStorage.setItem('quanmoc_dong_bo_jollibee_v1', '1');
+                    const danhSachKhoaDonDep = [
+                        'quanmoc_ds_ban', 'quanmoc_ds_mon_an', 'quanmoc_ds_thuc_don',
+                        'quanmoc_ds_khu_vuc', 'quanmoc_ds_danh_muc', 'quanmoc_ds_don_goi',
+                        'quanmoc_pos_phien_ban', 'quanmoc_pos_lich_su_hoa_don',
+                        'quanmoc_pos_nhat_ky_huy_tra', 'quanmoc_gio_hang',
+                        'quanmoc_danh_gia_dich_vu', 'quanmoc_ca_lam_viec_hien_tai',
+                        'quanmoc_yeu_cau_ho_tro', 'quanmoc_e_menu_ban_hien_tai'
+                    ];
+                    danhSachKhoaDonDep.forEach(k => localStorage.removeItem(k));
+                }
             }
         } catch {
             this.serverDangChay = false;

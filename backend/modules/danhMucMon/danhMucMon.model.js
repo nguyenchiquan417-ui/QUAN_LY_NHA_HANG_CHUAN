@@ -1,13 +1,6 @@
 const { docDuLieu, ghiDuLieu } = require('../../tienIch/luuTruDuLieu');
 
-const duLieuDanhMucMacDinh = [
-    { id: 1, tenDanhMuc: 'Khai Vị & Món Nhắm', bieuTuong: '🥗', thuTuHienThi: 1, trangThai: 'HoatDong', ngayTao: new Date() },
-    { id: 2, tenDanhMuc: 'Đặc Sản Quán Mộc', bieuTuong: '🍗', thuTuHienThi: 2, trangThai: 'HoatDong', ngayTao: new Date() },
-    { id: 3, tenDanhMuc: 'Lẩu & Nướng Than Hoa', bieuTuong: '🍲', thuTuHienThi: 3, trangThai: 'HoatDong', ngayTao: new Date() },
-    { id: 4, tenDanhMuc: 'Hải Sản Tươi Sống', bieuTuong: '🦐', thuTuHienThi: 4, trangThai: 'HoatDong', ngayTao: new Date() },
-    { id: 5, tenDanhMuc: 'Cơm, Mì & Rau Rừng', bieuTuong: '🍚', thuTuHienThi: 5, trangThai: 'HoatDong', ngayTao: new Date() },
-    { id: 6, tenDanhMuc: 'Đồ Uống & Tráng Miệng', bieuTuong: '🍹', thuTuHienThi: 6, trangThai: 'HoatDong', ngayTao: new Date() }
-];
+const duLieuDanhMucMacDinh = [];
 
 let danhSachDanhMuc = docDuLieu('danhMucMon', duLieuDanhMucMacDinh);
 let tuTangId = Math.max(...danhSachDanhMuc.map(dm => dm.id || 0), 0) + 1;

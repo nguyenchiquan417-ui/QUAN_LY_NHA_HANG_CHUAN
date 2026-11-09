@@ -1,50 +1,34 @@
 [
   {
     "id": 1,
-    "tenDanhMuc": "Khai Vị & Món Nhắm",
-    "bieuTuong": "🥗",
+    "tenDanhMuc": "Gà Giòn Vui Vẻ",
+    "ten": "Gà Giòn Vui Vẻ",
+    "bieuTuong": "🍗",
     "thuTuHienThi": 1,
-    "trangThai": "HoatDong",
-    "ngayTao": "2026-11-05T04:10:45.037Z"
+    "trangThai": "HoatDong"
   },
   {
     "id": 2,
-    "tenDanhMuc": "Đặc Sản Quán Mộc",
-    "bieuTuong": "🍗",
+    "tenDanhMuc": "Mì Ý Sốt Bò Bằm",
+    "ten": "Mì Ý Sốt Bò Bằm",
+    "bieuTuong": "🍝",
     "thuTuHienThi": 2,
-    "trangThai": "HoatDong",
-    "ngayTao": "2026-11-05T04:10:45.037Z"
+    "trangThai": "HoatDong"
   },
   {
     "id": 3,
-    "tenDanhMuc": "Lẩu & Nướng Than Hoa",
-    "bieuTuong": "🍲",
+    "tenDanhMuc": "Burger & Cơm",
+    "ten": "Burger & Cơm",
+    "bieuTuong": "🍔",
     "thuTuHienThi": 3,
-    "trangThai": "HoatDong",
-    "ngayTao": "2026-11-05T04:10:45.037Z"
+    "trangThai": "HoatDong"
   },
   {
     "id": 4,
-    "tenDanhMuc": "Hải Sản Tươi Sống",
-    "bieuTuong": "🦐",
+    "tenDanhMuc": "Tráng Miệng & Thức Uống",
+    "ten": "Tráng Miệng & Thức Uống",
+    "bieuTuong": "🥤",
     "thuTuHienThi": 4,
-    "trangThai": "HoatDong",
-    "ngayTao": "2026-11-05T04:10:45.037Z"
-  },
-  {
-    "id": 5,
-    "tenDanhMuc": "Cơm, Mì & Rau Rừng",
-    "bieuTuong": "🍚",
-    "thuTuHienThi": 5,
-    "trangThai": "HoatDong",
-    "ngayTao": "2026-11-05T04:10:45.037Z"
-  },
-  {
-    "id": 6,
-    "tenDanhMuc": "Đồ Uống & Tráng Miệng",
-    "bieuTuong": "🍹",
-    "thuTuHienThi": 6,
-    "trangThai": "HoatDong",
-    "ngayTao": "2026-11-05T04:10:45.037Z"
+    "trangThai": "HoatDong"
   }
 ]

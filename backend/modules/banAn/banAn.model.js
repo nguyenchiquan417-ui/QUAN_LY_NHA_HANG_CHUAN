@@ -1,28 +1,7 @@
 const { taoTokenBaoMatQr } = require('../../tienIch/taoMaQr');
 const { docDuLieu, ghiDuLieu } = require('../../tienIch/luuTruDuLieu');
 
-const duLieuBanMacDinh = [
-    // Tầng 1 (Khu vực 1)
-    { id: 1, maBan: 'B101', tenBan: 'Bàn 01', soBan: 'Bàn 01', khuVucId: 1, sucChua: 4, tokenBaoMat: 'tok_t1_b01_998', qrToken: 'tok_t1_b01_998', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: 'Gần cửa sổ', ngayTao: new Date() },
-    { id: 2, maBan: 'B102', tenBan: 'Bàn 02', soBan: 'Bàn 02', khuVucId: 1, sucChua: 4, tokenBaoMat: 'tok_t1_b02_874', qrToken: 'tok_t1_b02_874', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: 'Khách gia đình', ngayTao: new Date() },
-    { id: 3, maBan: 'B103', tenBan: 'Bàn 03', soBan: 'Bàn 03', khuVucId: 1, sucChua: 6, tokenBaoMat: 'tok_t1_b03_321', qrToken: 'tok_t1_b03_321', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: 'Bàn giữa', ngayTao: new Date() },
-    { id: 4, maBan: 'B104', tenBan: 'Bàn 04', soBan: 'Bàn 04', khuVucId: 1, sucChua: 8, tokenBaoMat: 'tok_t1_b04_552', qrToken: 'tok_t1_b04_552', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: 'Gần quầy bar', ngayTao: new Date() },
-    { id: 5, maBan: 'B105', tenBan: 'Bàn 05', soBan: 'Bàn 05', khuVucId: 1, sucChua: 4, tokenBaoMat: 'tok_t1_b05_641', qrToken: 'tok_t1_b05_641', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: '', ngayTao: new Date() },
-    { id: 6, maBan: 'B106', tenBan: 'Bàn 06', soBan: 'Bàn 06', khuVucId: 1, sucChua: 2, tokenBaoMat: 'tok_UPkcC3fpL9eq', qrToken: 'tok_UPkcC3fpL9eq', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: 'Bàn đôi', ngayTao: new Date() },
-    
-    // Tầng 2 (Khu vực 2)
-    { id: 7, maBan: 'B201', tenBan: 'Bàn 07', soBan: 'Bàn 07', khuVucId: 2, sucChua: 4, tokenBaoMat: 'tok_t2_b07_441', qrToken: 'tok_t2_b07_441', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: 'Ban công', ngayTao: new Date() },
-    { id: 8, maBan: 'B202', tenBan: 'Bàn 08', soBan: 'Bàn 08', khuVucId: 2, sucChua: 6, tokenBaoMat: 'tok_t2_b08_229', qrToken: 'tok_t2_b08_229', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: 'Bàn dài', ngayTao: new Date() },
-    { id: 9, maBan: 'B203', tenBan: 'Bàn 09', soBan: 'Bàn 09', khuVucId: 2, sucChua: 4, tokenBaoMat: 'tok_t2_b09_773', qrToken: 'tok_t2_b09_773', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: '', ngayTao: new Date() },
-
-    // Sân vườn (Khu vực 3)
-    { id: 10, maBan: 'BSV1', tenBan: 'Bàn 10', soBan: 'Bàn 10', khuVucId: 3, sucChua: 8, tokenBaoMat: 'tok_sv_b10_884', qrToken: 'tok_sv_b10_884', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: 'Dưới tán cây', ngayTao: new Date() },
-    { id: 11, maBan: 'BSV2', tenBan: 'Bàn 11', soBan: 'Bàn 11', khuVucId: 3, sucChua: 10, tokenBaoMat: 'tok_sv_b11_332', qrToken: 'tok_sv_b11_332', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: 'Tiệc họp mặt', ngayTao: new Date() },
-
-    // VIP (Khu vực 4)
-    { id: 12, maBan: 'VIP1', tenBan: 'VIP 01', soBan: 'VIP 01', khuVucId: 4, sucChua: 12, tokenBaoMat: 'tok_vip01_991', qrToken: 'tok_vip01_991', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: 'Phòng Sen Vàng', ngayTao: new Date() },
-    { id: 13, maBan: 'VIP2', tenBan: 'VIP 02', soBan: 'VIP 02', khuVucId: 4, sucChua: 16, tokenBaoMat: 'tok_vip02_882', qrToken: 'tok_vip02_882', trangThai: 'Trong', daPhatSinhGiaoDich: false, ghiChu: 'Đang bảo dưỡng đèn', ngayTao: new Date() }
-];
+const duLieuBanMacDinh = [];
 
 let danhSachBanAn = docDuLieu('banAn', duLieuBanMacDinh);
 let tuTangId = Math.max(...danhSachBanAn.map(b => b.id || 0), 0) + 1;

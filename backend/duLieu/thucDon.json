@@ -1,300 +1,321 @@
 [
   {
     "id": 1,
-    "maMon": "MON-01",
-    "tenMon": "Gà Nướng Ống Tre Tây Bắc",
-    "danhMucId": 2,
-    "giaBan": 245000,
-    "donViTinh": "Con",
-    "hinhAnh": "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Gà đồi thả vườn ướp hạt dổi, mắc khén nướng trong ống tre thơm lừng, thịt mềm ngọt đậm vị.",
+    "maMon": "JB-01",
+    "danhMucId": 1,
+    "tenMon": "1 Miếng Gà Giòn Vui Vẻ",
+    "giaBan": 35000,
+    "donViTinh": "Miếng",
+    "hinhAnh": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=600&auto=format&fit=crop&q=80",
+    "moTa": "Gà rán truyền thống giòn rụm bên ngoài, thịt mềm ngọt mọng nước bên trong, chấm cùng sốt Gravy đậm đà đặc trưng Jollibee.",
     "trangThai": "DangBan",
     "laMonBanChay": true,
-    "tuyChon": [],
     "tuyChonSize": [
       {
-        "ten": "Nửa con",
-        "giaCongThem": -100000
-      },
-      {
-        "ten": "Nguyên con tiêu chuẩn",
+        "ten": "Không cay (Giòn thơm)",
         "giaCongThem": 0
       },
       {
-        "ten": "Nguyên con cỡ lớn (2kg)",
-        "giaCongThem": 60000
+        "ten": "Cay nồng giòn rụm",
+        "giaCongThem": 0
       }
     ],
     "tuyChonTopping": [
       {
-        "ten": "Xôi nếp nương nướng",
-        "gia": 35000
-      },
-      {
-        "ten": "Muối chấm chẩm chéo đặc biệt",
-        "gia": 15000
+        "ten": "Thêm sốt Gravy",
+        "gia": 5000
       }
-    ],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-06T05:47:41.423Z"
+    ]
   },
   {
     "id": 2,
-    "maMon": "MON-02",
-    "tenMon": "Lẩu Gà Lá É Tao Ngộ",
-    "danhMucId": 3,
-    "giaBan": 289000,
-    "donViTinh": "Nồi",
-    "hinhAnh": "https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Hương vị chuẩn Đà Lạt, nước dùng thanh ngọt nấu nấm samco và thịt gà ta, dậy mùi thơm lá é.",
+    "maMon": "JB-02",
+    "danhMucId": 1,
+    "tenMon": "2 Miếng Gà Giòn Vui Vẻ",
+    "giaBan": 68000,
+    "donViTinh": "Phần",
+    "hinhAnh": "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?w=600&auto=format&fit=crop&q=80",
+    "moTa": "Phần 2 miếng gà rán da giòn rụm, thịt mọng nước, ăn kèm nước chấm sốt Gravy thơm lừng chuẩn vị Jollibee.",
     "trangThai": "DangBan",
     "laMonBanChay": true,
-    "tuyChon": [],
     "tuyChonSize": [
       {
-        "ten": "Nồi vừa (2 - 3 người)",
+        "ten": "2 Miếng giòn không cay",
         "giaCongThem": 0
       },
       {
-        "ten": "Nồi lớn (4 - 6 người)",
-        "giaCongThem": 90000
+        "ten": "2 Miếng cay đặc biệt",
+        "giaCongThem": 0
       }
     ],
     "tuyChonTopping": [
       {
-        "ten": "Đĩa lá é tươi thêm",
-        "gia": 25000
-      },
-      {
-        "ten": "Bún tươi thêm",
-        "gia": 15000
-      },
-      {
-        "ten": "Đĩa nấm samco thêm",
-        "gia": 35000
+        "ten": "Thêm sốt Gravy",
+        "gia": 5000
       }
-    ],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-06T05:47:41.423Z"
+    ]
   },
   {
     "id": 3,
-    "maMon": "MON-03",
-    "tenMon": "Bò Tơ Nướng Tảng Sốt Tiêu Rừng",
-    "danhMucId": 2,
-    "giaBan": 260000,
-    "donViTinh": "Phần",
-    "hinhAnh": "https://images.unsplash.com/photo-1558030006-450675393462?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Thịt bò tơ tươi nướng trên than hoa giữ trọn độ mọng nước, kèm sốt tiêu rừng cay the dịu dàng.",
-    "trangThai": "TamHet",
+    "maMon": "JB-03",
+    "danhMucId": 3,
+    "tenMon": "Cơm Gà Giòn Cay Jollibee",
+    "giaBan": 48000,
+    "donViTinh": "Dĩa",
+    "hinhAnh": "https://images.unsplash.com/photo-1562967914-608f82629710?w=600&auto=format&fit=crop&q=80",
+    "moTa": "1 miếng gà rán giòn cay đậm đà phủ bột ớt nướng, ăn cùng cơm trắng dẻo thơm và nước sốt Gravy nóng hổi.",
+    "trangThai": "DangBan",
     "laMonBanChay": true,
-    "tuyChon": [],
     "tuyChonSize": [
       {
-        "ten": "Phần 300g",
+        "ten": "Phần cơm tiêu chuẩn",
         "giaCongThem": 0
       },
       {
-        "ten": "Phần 500g",
-        "giaCongThem": 140000
-      }
-    ],
-    "tuyChonTopping": [
-      {
-        "ten": "Bánh mì nướng bơ tỏi",
-        "gia": 20000
-      },
-      {
-        "ten": "Khoai tây múi cau chiên",
-        "gia": 35000
-      }
-    ],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-07T04:06:16.897Z"
-  },
-  {
-    "id": 4,
-    "maMon": "MON-04",
-    "tenMon": "Cơm Cháy Kho Quẹt Nam Bộ",
-    "danhMucId": 1,
-    "giaBan": 95000,
-    "donViTinh": "Đĩa",
-    "hinhAnh": "https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Cơm cháy đáy nồi giòn rụm chấm cùng niêu kho quẹt tôm khô tóp mỡ đậm đà, ăn kèm rau củ luộc.",
-    "trangThai": "DangBan",
-    "laMonBanChay": true,
-    "tuyChon": [],
-    "tuyChonSize": [],
-    "tuyChonTopping": [
-      {
-        "ten": "Tóp mỡ kho quẹt thêm",
-        "gia": 30000
-      },
-      {
-        "ten": "Cơm cháy giòn thêm",
-        "gia": 25000
-      }
-    ],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-06T05:47:41.423Z"
-  },
-  {
-    "id": 5,
-    "maMon": "MON-05",
-    "tenMon": "Mực Một Nắng Nướng Sa Tế",
-    "danhMucId": 4,
-    "giaBan": 185000,
-    "donViTinh": "Con",
-    "hinhAnh": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Mực câu Phan Thiết phơi một nắng dẻo thơm, tẩm ướp sa tế cay nồng nướng than hồng.",
-    "trangThai": "DangBan",
-    "laMonBanChay": false,
-    "tuyChon": [],
-    "tuyChonSize": [],
-    "tuyChonTopping": [],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-06T05:47:41.423Z"
-  },
-  {
-    "id": 6,
-    "maMon": "MON-06",
-    "tenMon": "Gỏi Ngó Sen Tôm Thịt Hoa Chuối",
-    "danhMucId": 1,
-    "giaBan": 110000,
-    "donViTinh": "Đĩa",
-    "hinhAnh": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Ngó sen giòn sần sật, tôm sú bóc nõn, thịt ba chỉ luộc trộn cùng nước mắm chua ngọt và bánh phồng tôm.",
-    "trangThai": "DangBan",
-    "laMonBanChay": false,
-    "tuyChon": [],
-    "tuyChonSize": [],
-    "tuyChonTopping": [
-      {
-        "ten": "Bánh phồng tôm chiên thêm",
-        "gia": 15000
-      }
-    ],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-06T05:47:41.423Z"
-  },
-  {
-    "id": 7,
-    "maMon": "MON-07",
-    "tenMon": "Rau Rừng Gia Lai Xào Tỏi",
-    "danhMucId": 5,
-    "giaBan": 75000,
-    "donViTinh": "Đĩa",
-    "hinhAnh": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Rau dớn, rau lủi hái trên nương rẫy xanh mướt, xào thơm nức mũi với tỏi Lý Sơn giã dập.",
-    "trangThai": "DangBan",
-    "laMonBanChay": false,
-    "tuyChon": [],
-    "tuyChonSize": [],
-    "tuyChonTopping": [],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-06T05:47:41.423Z"
-  },
-  {
-    "id": 8,
-    "maMon": "MON-08",
-    "tenMon": "Trà Sen Vàng Củ Năng Hạt Sen",
-    "danhMucId": 6,
-    "giaBan": 45000,
-    "donViTinh": "Ly",
-    "hinhAnh": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Trà ô long ướp hoa sen thanh nhã, thạch củ năng giòn ngọt và hạt sen bùi béo, phủ lớp kem sữa.",
-    "trangThai": "DangBan",
-    "laMonBanChay": true,
-    "tuyChon": [],
-    "tuyChonSize": [
-      {
-        "ten": "Size M (Tiêu chuẩn)",
-        "giaCongThem": 0
-      },
-      {
-        "ten": "Size L (Khổng lồ)",
+        "ten": "Cơm thêm",
         "giaCongThem": 10000
       }
     ],
     "tuyChonTopping": [
       {
-        "ten": "Thạch củ năng thêm",
+        "ten": "Trứng ốp la lòng đào",
         "gia": 10000
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "maMon": "JB-04",
+    "danhMucId": 2,
+    "tenMon": "Mì Ý Sốt Bò Bằm Jolly Spaghetti",
+    "giaBan": 38000,
+    "donViTinh": "Dĩa",
+    "hinhAnh": "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&auto=format&fit=crop&q=80",
+    "moTa": "Sợi mì Ý dai ngon đậm đà sốt cà chua ngọt truyền thống Jollibee, topping xúc xích cắt lát và phô mai sợi béo ngậy.",
+    "trangThai": "DangBan",
+    "laMonBanChay": true,
+    "tuyChonSize": [
+      {
+        "ten": "Dĩa vừa (Tiêu chuẩn)",
+        "giaCongThem": 0
       },
       {
-        "ten": "Kem cheese béo ngậy",
-        "gia": 12000
+        "ten": "Dĩa lớn (Jumbo)",
+        "giaCongThem": 15000
       }
     ],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-06T05:47:41.423Z"
+    "tuyChonTopping": [
+      {
+        "ten": "Phô mai sợi rắc thêm",
+        "gia": 8000
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "maMon": "JB-05",
+    "danhMucId": 2,
+    "tenMon": "Combo Gà Giòn & Mì Ý Jolly",
+    "giaBan": 75000,
+    "donViTinh": "Combo",
+    "hinhAnh": "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80",
+    "moTa": "Sự kết hợp hoàn hảo giữa 1 miếng gà giòn rụm Chickenjoy và 1 đĩa mì Ý sốt bò bằm đậm đà thơm ngậy.",
+    "trangThai": "DangBan",
+    "laMonBanChay": true,
+    "tuyChonSize": [
+      {
+        "ten": "Gà không cay + Mì Ý",
+        "giaCongThem": 0
+      },
+      {
+        "ten": "Gà cay + Mì Ý",
+        "giaCongThem": 0
+      }
+    ],
+    "tuyChonTopping": [
+      {
+        "ten": "Thêm ly Coca-Cola vừa",
+        "gia": 15000
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "maMon": "JB-06",
+    "danhMucId": 3,
+    "tenMon": "Burger Gà Giòn Chicken Burger",
+    "giaBan": 35000,
+    "donViTinh": "Cái",
+    "hinhAnh": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80",
+    "moTa": "Thịt gà phi lê chiên giòn rụm kẹp rau xà lách tươi sạch cùng sốt mayonnaise béo thơm trong vỏ bánh burger mềm.",
+    "trangThai": "DangBan",
+    "laMonBanChay": false,
+    "tuyChonSize": [
+      {
+        "ten": "Burger đơn",
+        "giaCongThem": 0
+      }
+    ],
+    "tuyChonTopping": [
+      {
+        "ten": "Thêm lát phô mai Cheddar",
+        "gia": 8000
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "maMon": "JB-07",
+    "danhMucId": 3,
+    "tenMon": "Burger Bò Yumburger",
+    "giaBan": 32000,
+    "donViTinh": "Cái",
+    "hinhAnh": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=600&auto=format&fit=crop&q=80",
+    "moTa": "Burger bò nướng lửa thơm nồng kẹp sốt dressing tỏi thơm béo độc quyền chỉ có tại Jollibee.",
+    "trangThai": "DangBan",
+    "laMonBanChay": false,
+    "tuyChonSize": [
+      {
+        "ten": "Tiêu chuẩn",
+        "giaCongThem": 0
+      }
+    ],
+    "tuyChonTopping": [
+      {
+        "ten": "Thêm phô mai",
+        "gia": 8000
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "maMon": "JB-08",
+    "danhMucId": 1,
+    "tenMon": "Gà Không Xương Popcorn",
+    "giaBan": 39000,
+    "donViTinh": "Hộp",
+    "hinhAnh": "https://images.unsplash.com/photo-1585325701165-351af916e581?w=600&auto=format&fit=crop&q=80",
+    "moTa": "Từng viên thịt gà tươi rút xương giòn rụm, tẩm ướp tiêu đen thơm lừng, món ăn vặt yêu thích của giới trẻ.",
+    "trangThai": "DangBan",
+    "laMonBanChay": true,
+    "tuyChonSize": [
+      {
+        "ten": "Hộp vừa",
+        "giaCongThem": 0
+      },
+      {
+        "ten": "Hộp lớn",
+        "giaCongThem": 20000
+      }
+    ],
+    "tuyChonTopping": [
+      {
+        "ten": "Sốt chấm mù tạt mật ong",
+        "gia": 6000
+      }
+    ]
   },
   {
     "id": 9,
-    "maMon": "MON-09",
-    "tenMon": "Trà Vải Hoa Nhài",
-    "danhMucId": 6,
-    "giaBan": 35000,
-    "donViTinh": "Ly",
-    "hinhAnh": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Trà lài ủ lạnh thơm mát kết hợp vị vải ngọt thanh mọng nước.",
+    "maMon": "JB-09",
+    "danhMucId": 4,
+    "tenMon": "Khoai Tây Lắc Phô Mai",
+    "giaBan": 28000,
+    "donViTinh": "Phần",
+    "hinhAnh": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&auto=format&fit=crop&q=80",
+    "moTa": "Khoai tây cắt que chiên giòn vàng ươm, lắc đều cùng bột phô mai béo ngậy thơm nức mũi.",
     "trangThai": "DangBan",
     "laMonBanChay": true,
-    "tuyChon": [],
-    "tuyChonSize": [],
-    "tuyChonTopping": [],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-06T05:47:41.423Z"
+    "tuyChonSize": [
+      {
+        "ten": "Cỡ vừa (M)",
+        "giaCongThem": 0
+      },
+      {
+        "ten": "Cỡ lớn (L)",
+        "giaCongThem": 10000
+      }
+    ],
+    "tuyChonTopping": [
+      {
+        "ten": "Thêm gói bột phô mai",
+        "gia": 5000
+      }
+    ]
   },
   {
     "id": 10,
-    "maMon": "MON-10",
-    "tenMon": "Lẩu Bò Nhúng Dấm",
-    "danhMucId": 3,
-    "giaBan": 295000,
-    "donViTinh": "Nồi",
-    "hinhAnh": "https://images.unsplash.com/photo-1547928576-a4a33237cbc3?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Nước lẩu chua thanh dịu nhẹ từ nước dừa xiêm và dấm gạo thơm, kèm bắp bò hoa.",
+    "maMon": "JB-10",
+    "danhMucId": 4,
+    "tenMon": "Bánh Pie Xoài Đào Peach Mango",
+    "giaBan": 18000,
+    "donViTinh": "Cái",
+    "hinhAnh": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600&auto=format&fit=crop&q=80",
+    "moTa": "Món tráng miệng huyền thoại Jollibee: vỏ bánh chiên giòn xốp chứa nhân xoài đào ngọt thanh thơm nức nóng hổi.",
     "trangThai": "DangBan",
-    "laMonBanChay": false,
-    "tuyChon": [],
-    "tuyChonSize": [],
-    "tuyChonTopping": [],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-06T05:47:41.423Z"
+    "laMonBanChay": true,
+    "tuyChonSize": [
+      {
+        "ten": "1 Bánh Pie",
+        "giaCongThem": 0
+      },
+      {
+        "ten": "Hộp 3 Bánh Pie",
+        "giaCongThem": 32000
+      }
+    ],
+    "tuyChonTopping": []
   },
   {
     "id": 11,
-    "maMon": "MON-11",
-    "tenMon": "Bò Tơ Hấp Cuốn Bánh Tráng",
-    "danhMucId": 2,
-    "giaBan": 185000,
-    "donViTinh": "Phần",
-    "hinhAnh": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Bò tơ mềm ngọt cuốn rau rừng Tây Ninh chấm mắm nêm đặc sản.",
+    "maMon": "JB-11",
+    "danhMucId": 4,
+    "tenMon": "Kem Sundae Dâu Tây",
+    "giaBan": 18000,
+    "donViTinh": "Ly",
+    "hinhAnh": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600&auto=format&fit=crop&q=80",
+    "moTa": "Kem tươi vani sánh mịn mát lạnh hòa quyện cùng sốt dâu tây ngọt ngào và mứt dâu đỏ mọng.",
     "trangThai": "DangBan",
-    "laMonBanChay": true,
-    "tuyChon": [],
-    "tuyChonSize": [],
-    "tuyChonTopping": [],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-06T05:47:41.423Z"
+    "laMonBanChay": false,
+    "tuyChonSize": [
+      {
+        "ten": "Ly tiêu chuẩn",
+        "giaCongThem": 0
+      }
+    ],
+    "tuyChonTopping": [
+      {
+        "ten": "Thêm sốt dâu",
+        "gia": 5000
+      }
+    ]
   },
   {
     "id": 12,
-    "maMon": "MON-12",
-    "tenMon": "Gỏi Bò Bóp Thấu",
-    "danhMucId": 1,
-    "giaBan": 95000,
-    "donViTinh": "Đĩa",
-    "hinhAnh": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80",
-    "moTa": "Thịt bò tươi mềm bóp thấu kèm bắp chuối, đậu phộng rang giòn thơm lừng.",
+    "maMon": "JB-12",
+    "danhMucId": 4,
+    "tenMon": "Trà Sữa Trân Châu Tươi",
+    "giaBan": 25000,
+    "donViTinh": "Ly",
+    "hinhAnh": "https://images.unsplash.com/photo-1558857563-b37cf537b03b?w=600&auto=format&fit=crop&q=80",
+    "moTa": "Trà sữa thơm béo hài hòa kết hợp cùng trân châu đen dẻo dai sần sật, giải nhiệt cực đã.",
     "trangThai": "DangBan",
-    "laMonBanChay": false,
-    "tuyChon": [],
-    "tuyChonSize": [],
-    "tuyChonTopping": [],
-    "ngayTao": "2026-11-05T04:10:45.053Z",
-    "ngayCapNhat": "2026-11-06T05:47:41.423Z"
+    "laMonBanChay": true,
+    "tuyChonSize": [
+      {
+        "ten": "Ly vừa (M)",
+        "giaCongThem": 0
+      },
+      {
+        "ten": "Ly lớn (L)",
+        "giaCongThem": 7000
+      }
+    ],
+    "tuyChonTopping": [
+      {
+        "ten": "Thêm trân châu",
+        "gia": 6000
+      }
+    ]
   }
 ]

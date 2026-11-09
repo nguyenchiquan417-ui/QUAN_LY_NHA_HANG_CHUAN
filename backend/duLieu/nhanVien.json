@@ -2,7 +2,7 @@
   {
     "id": 1,
     "tenDangNhap": "quanly",
-    "matKhau": "$2a$10$w3a6zB2qLphF3kL4kOaPDeP46n9Gk1wD26dJ3j5aC3aE.vEw6G.Xe",
+    "matKhau": "$2a$10$8LkPeNx4L7yWb7HSHLWM5OzztENskDfQJ9x/GhAonKQ2wlrCn8HAO",
     "hoTen": "Nguyễn Văn Quản Lý",
     "soDienThoai": "0901234567",
     "email": "quanly@quanmoc.com",
@@ -14,7 +14,7 @@
   {
     "id": 2,
     "tenDangNhap": "thungan01",
-    "matKhau": "$2a$10$w3a6zB2qLphF3kL4kOaPDeP46n9Gk1wD26dJ3j5aC3aE.vEw6G.Xe",
+    "matKhau": "$2a$10$8LkPeNx4L7yWb7HSHLWM5OzztENskDfQJ9x/GhAonKQ2wlrCn8HAO",
     "hoTen": "Trần Thị Thu Ngân",
     "soDienThoai": "0912345678",
     "email": "thungan@quanmoc.com",
@@ -26,7 +26,7 @@
   {
     "id": 3,
     "tenDangNhap": "bep01",
-    "matKhau": "$2a$10$w3a6zB2qLphF3kL4kOaPDeP46n9Gk1wD26dJ3j5aC3aE.vEw6G.Xe",
+    "matKhau": "$2a$10$8LkPeNx4L7yWb7HSHLWM5OzztENskDfQJ9x/GhAonKQ2wlrCn8HAO",
     "hoTen": "Lê Văn Bếp Trưởng",
     "soDienThoai": "0923456789",
     "email": "bep@quanmoc.com",
@@ -38,7 +38,7 @@
   {
     "id": 4,
     "tenDangNhap": "phucvu01",
-    "matKhau": "$2a$10$w3a6zB2qLphF3kL4kOaPDeP46n9Gk1wD26dJ3j5aC3aE.vEw6G.Xe",
+    "matKhau": "$2a$10$8LkPeNx4L7yWb7HSHLWM5OzztENskDfQJ9x/GhAonKQ2wlrCn8HAO",
     "hoTen": "Phạm Văn Phục Vụ",
     "soDienThoai": "0934567890",
     "email": "phucvu@quanmoc.com",
