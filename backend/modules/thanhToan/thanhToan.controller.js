@@ -42,7 +42,7 @@ async function layLichSu(req, res, next) {
 async function giaiPhongBan(req, res, next) {
     try {
         const { banId } = req.params;
-        await thanhToanService.dongPhienVaGiaiPhongBan(banId);
+        await thanhToanService.dongPhienVaGiaiPhongBan(banId, req.body || {});
         return phanHoiThanhCong(res, { banId: Number(banId), trangThai: 'Trong' }, 'Giải phóng bàn ăn và đóng toàn bộ đơn thành công');
     } catch (e) {
         next(e);

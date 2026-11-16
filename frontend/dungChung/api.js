@@ -1233,6 +1233,37 @@ class ApiService {
     async hoanTatThanhToanVaGiaiPhongBan(banId, thongTinHoaDon = {}) {
         const id = Number(banId);
 
+        // Nếu chọn giữ bàn tiếp tục phục vụ (thanh toán trước khi nhận đủ món / ăn tiếp)
+        if (thongTinHoaDon && thongTinHoaDon.giuBan) {
+            const rawPhien = localStorage.getItem('quanmoc_pos_phien_ban');
+            let phienMap = {};
+            try { phienMap = rawPhien ? JSON.parse(rawPhien) : {}; } catch { phienMap = {}; }
+            const bKey = phienMap[id] ? id : (phienMap[String(id)] ? String(id) : null);
+            if (bKey && phienMap[bKey]) {
+                phienMap[bKey].daThanhToan = true;
+                phienMap[bKey].maHoaDon = thongTinHoaDon.maHoaDon || '';
+                localStorage.setItem('quanmoc_pos_phien_ban', JSON.stringify(phienMap));
+            }
+            const dsBan = await this.layDanhSachBanAn();
+            const ban = dsBan.find(b => Number(b.id) === id);
+            if (ban) {
+                ban.trangThai = 'DANG_DUNG';
+                ban.daThanhToan = true;
+                await this.luuDanhSachBan(dsBan);
+                await this.capNhatTrangThaiBan(id, 'DANG_DUNG');
+            }
+            try {
+                await this.yeuCau('/thanh-toan/giai-phong-ban/' + id, {
+                    method: 'POST',
+                    body: { giuBan: true, ...thongTinHoaDon }
+                });
+            } catch (e) {}
+            if (window.socketClient) {
+                window.socketClient.phatSuKien('ban:capnhat');
+            }
+            return { ok: true, msg: 'Đã ghi nhận thanh toán. Giữ bàn ' + id + ' tiếp tục phục vụ.' };
+        }
+
         // 1. Cập nhật localStorage quanmoc_ds_don_goi: Đánh dấu tất cả đơn của bàn là HOAN_THANH
         const rawDon = localStorage.getItem(window.HANG_SO?.KHOA_LUU_TRU?.DANH_SACH_DON_GOI || 'quanmoc_ds_don_goi');
         let dsDon = [];

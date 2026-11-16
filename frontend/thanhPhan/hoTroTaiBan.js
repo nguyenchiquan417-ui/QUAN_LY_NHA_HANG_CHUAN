@@ -273,11 +273,15 @@ class HoTroTaiBanComponent {
         const tongTien = kqDon.ok ? kqDon.data.tongTienLuyKe : 0;
         const cauHinh = await window.api.layCauHinhHeThong();
         const nganHang = cauHinh.nganHang || {};
+        const dsBan = await window.api.layDanhSachBanAn();
+        const ban = dsBan.find(b => Number(b.id) === Number(this.banIdHienTai));
+        const tenBan = ban ? ban.soBan : `Bàn ${this.banIdHienTai}`;
+        const soMonChoBung = kqDon.ok && kqDon.data.thongKe ? (kqDon.data.thongKe.daXong || 0) : 0;
 
         modal.innerHTML = `
             <div class="hop-thoai-modal hop-thoai-thanh-toan-ban">
                 <div class="dau-modal">
-                    <h3>💳 Yêu Cầu Thanh Toán (Bàn 03)</h3>
+                    <h3>💳 Yêu Cầu Thanh Toán (${tenBan})</h3>
                     <button type="button" class="nut-dong-modal" onclick="window.hoTroTaiBan.dongModal()">✕</button>
                 </div>
                 <div class="than-modal">
@@ -285,6 +289,7 @@ class HoTroTaiBanComponent {
                         <span class="nhan-tong">Tổng tiền tạm tính lũy kế:</span>
                         <span class="so-tien-tong">${tongTien.toLocaleString('vi-VN')} đ</span>
                     </div>
+                    ${soMonChoBung > 0 ? `<div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12.5px; color: #b45309;">🔔 <strong>Lưu ý:</strong> Bàn còn <strong>${soMonChoBung} món</strong> Bếp đã nấu xong và nhân viên đang bưng ra. Bàn sẽ không bị dọn khi gọi thanh toán.</div>` : ''}
 
                     <p style="font-size: 13px; color: var(--mau-chu-phu); margin-bottom: 12px;">
                         Vui lòng chọn hình thức thanh toán mong muốn:

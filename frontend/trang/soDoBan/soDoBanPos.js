@@ -468,7 +468,10 @@ class SoDoBanPosModule {
                 : 0;
 
             const monChuaRa = (phien && phien.danhSachMon)
-                ? phien.danhSachMon.filter(m => m.trangThai === 'CHO_XAC_NHAN' || m.trangThai === 'DANG_CHE_BIEN').length
+                ? phien.danhSachMon.filter(m => m.trangThai === 'CHO_XAC_NHAN' || m.trangThai === 'DANG_CHE_BIEN' || m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG').length
+                : 0;
+            const monChoBung = (phien && phien.danhSachMon)
+                ? phien.danhSachMon.filter(m => m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG').length
                 : 0;
 
             // Xác định class và nhãn trạng thái
@@ -507,7 +510,7 @@ class SoDoBanPosModule {
                                 <div class="so-tien-tam-tinh">${window.DinhDang && window.DinhDang.tienVnd ? window.DinhDang.tienVnd(tongTien) : tongTien.toLocaleString() + ' đ'}</div>
                                 <div class="so-mon-badge">
                                     <span>📦 ${soLuongMon} món</span>
-                                    ${monChuaRa > 0 ? `<span class="mon-bep-cho">⏳ Bếp nợ: ${monChuaRa}</span>` : '<span class="mon-du">✓ Đã đủ món</span>'}
+                                    ${monChoBung > 0 ? `<span class="mon-bep-cho" style="background: #fef3c7; color: #b45309; font-weight: 700;">🔔 Chờ bưng: ${monChoBung}</span>` : (monChuaRa > 0 ? `<span class="mon-bep-cho">⏳ Bếp nợ: ${monChuaRa}</span>` : '<span class="mon-du">✓ Đã đủ món</span>')}
                                 </div>
                             </div>
                         ` : `
@@ -757,8 +760,20 @@ class SoDoBanPosModule {
         const ban = dsBan.find(b => b.id == banId);
         const tenBan = ban ? ban.soBan : `Bàn ${banId}`;
 
-        if (!confirm(`Xác nhận hoàn tất thanh toán / đóng phiên và đưa [${tenBan}] về trạng thái Bàn trống sạch sẽ?`)) {
-            return;
+        const dsPhienKiemTra = this.layTatCaPhienBan();
+        const phienKiemTra = dsPhienKiemTra[banId];
+        const monChuaBung = (phienKiemTra && phienKiemTra.danhSachMon)
+            ? phienKiemTra.danhSachMon.filter(m => m.trangThai !== 'DA_PHUC_VU' && m.trangThai !== 'DA_LEN_MON' && m.trangThai !== 'DA_HUY' && m.trangThai !== 'TU_CHOI')
+            : [];
+        if (monChuaBung.length > 0) {
+            const tenMonDs = monChuaBung.map(m => '• ' + m.tenMon + (m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG' ? ' (🔔 Bếp đã xong - Chờ bưng)' : ' (👨‍🍳 Đang nấu/chờ)')).join('\n');
+            if (!confirm('⚠️ CẢNH BÁO: [' + tenBan + '] vẫn còn ' + monChuaBung.length + ' món ăn chưa bưng lên bàn cho khách:\n' + tenMonDs + '\n\nKhách chưa nhận đủ món! Bạn có CHẮC CHẮN muốn dọn bàn và đưa về Bàn trống không?')) {
+                return;
+            }
+        } else {
+            if (!confirm('Xác nhận hoàn tất thanh toán / đóng phiên và đưa [' + tenBan + '] về trạng thái Bàn trống sạch sẽ?')) {
+                return;
+            }
         }
 
         // Xóa ngay phiên local của bàn

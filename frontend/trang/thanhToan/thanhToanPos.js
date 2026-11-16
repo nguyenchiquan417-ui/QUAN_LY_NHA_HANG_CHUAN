@@ -976,6 +976,109 @@ class ThanhToanPosModule {
     // =========================================================================
     // MODAL LỊCH SỬ HÓA ĐƠN & QUẢN LÝ VOUCHER
     // =========================================================================
+
+    // Cảnh báo khi còn món chưa bưng lên cho khách
+    hienThiModalCanhBaoChuaBung(ban, phien, maHoaDon, monChuaBung, tinhTien) {
+        const modal = document.getElementById('khung-modal-toan-cuc');
+        if (!modal) return;
+
+        const dsMonHtml = monChuaBung.map(m => {
+            const ttStr = (m.trangThai === 'DA_XONG' || m.trangThai === 'DA_NAU_XONG')
+                ? '<strong style="color: #b45309;">🔔 Bếp đã nấu xong (Chờ bưng lên bàn)</strong>'
+                : (m.trangThai === 'DANG_CHE_BIEN' ? '<span style="color: #2563eb;">👨‍🍳 Đang nấu</span>' : '<span style="color: #64748b;">⏳ Chờ duyệt</span>');
+            return `<li style="margin-bottom: 8px; font-size: 13.5px;"><strong>${m.tenMon}</strong> (SL: ${m.soLuong}) — ${ttStr}</li>`;
+        }).join('');
+
+        modal.innerHTML = `
+            <div class="hop-modal hop-modal-vua">
+                <div class="dau-modal" style="background: #fffbeb; border-bottom: 1.5px solid #fef3c7;">
+                    <h3 style="color: #b45309;">⚠️ Cảnh Báo: Bàn Còn Món Chưa Bưng Lên!</h3>
+                    <button class="nut-dong-modal" onclick="window.soDoBanPos.dongModal()">✕</button>
+                </div>
+                <div class="than-modal">
+                    <p style="font-size: 14px; line-height: 1.5; margin-bottom: 10px;">
+                        Bếp đã nấu xong (hoặc đang chế biến) nhưng nhân viên phục vụ <strong>CHƯA BƯNG ${monChuaBung.length} MÓN SAU CHO KHÁCH</strong>:
+                    </p>
+                    <ul style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 20px; margin-bottom: 14px;">
+                        ${dsMonHtml}
+                    </ul>
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #991b1b; line-height: 1.5;">
+                        🛑 <strong>Quy tắc nghiệp vụ:</strong> Nếu dọn bàn ngay lúc này, hệ thống sẽ đưa <strong>${ban.soBan}</strong> về trạng thái Bàn trống và xóa phiên phục vụ trong khi khách vẫn đang đợi ăn đồ ăn mang ra!
+                    </div>
+                </div>
+                <div class="chan-modal" style="display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;">
+                    <button class="nut nut-phu" onclick="window.soDoBanPos.dongModal()">
+                        ✕ Quay lại kiểm tra
+                    </button>
+                    <button class="nut nut-phu" style="background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; font-weight: 700;" onclick="window.thanhToanPos.thanhToanGiuBan(${ban.id}, '${maHoaDon}')" title="Thu tiền trước nhưng giữ bàn để tiếp tục phục vụ món">
+                        💳 Thanh toán trước (Giữ bàn ăn tiếp)
+                    </button>
+                    <button class="nut nut-chinh" onclick="window.soDoBanPos.dongModal(); window.thanhToanPos.xacNhanHoanTatThanhToan(${ban.id}, '${maHoaDon}', true)">
+                        🏃 Đã bưng đủ món & Dọn bàn đóng phiên
+                    </button>
+                </div>
+            </div>
+        `;
+        modal.classList.add('mo');
+    }
+
+    // Thanh toán nhưng giữ bàn tiếp tục phục vụ món
+    async thanhToanGiuBan(banId, maHoaDon) {
+        const dsBan = await window.api.layDanhSachBan();
+        const ban = dsBan.find(b => b.id == banId);
+        const dsPhien = this.layTatCaPhienBan();
+        const phien = dsPhien[banId];
+        if (!ban || !phien) return;
+
+        const tinhTien = this.tinhToanTongTienHoaDon(phien);
+        if (this.phuongThucThanhToan === 'TIEN_MAT' && this.tienKhachDua < tinhTien.tongThanhToan) {
+            if (!confirm(`Tiền khách đưa (${(this.tienKhachDua || 0).toLocaleString()} đ) ít hơn tổng thanh toán (${tinhTien.tongThanhToan.toLocaleString()} đ). Bạn có chắc chắn muốn xác nhận không?`)) {
+                return;
+            }
+        }
+
+        // 1. Lưu hóa đơn vào lịch sử (US-107)
+        const user = window.api ? window.api.layThongTinNguoiDung() : null;
+        this.luuHoaDon({
+            maHoaDon: maHoaDon,
+            soBan: ban.soBan,
+            thoiGianVao: phien.thoiGianBatDau,
+            thoiGianThanhToan: new Date().toISOString(),
+            tongTienMon: tinhTien.tienMon,
+            giamGia: tinhTien.tongGiamGia,
+            phuPhi: tinhTien.tienPhuPhi,
+            vat: tinhTien.tienVat,
+            tongThanhToan: tinhTien.tongThanhToan,
+            phuongThuc: this.phuongThucThanhToan,
+            thuNgan: user ? user.hoTen : 'Quân (Thu ngân)'
+        });
+
+        // 2. GIỮ BÀN: Đánh dấu phiên đã thanh toán, KHÔNG XÓA PHIÊN, KHÔNG ĐỔI THÀNH BÀN TRỐNG!
+        phien.daThanhToan = true;
+        phien.maHoaDon = maHoaDon;
+        this.luuTatCaPhienBan(dsPhien);
+
+        if (window.api && window.api.hoanTatThanhToanVaGiaiPhongBan) {
+            await window.api.hoanTatThanhToanVaGiaiPhongBan(banId, {
+                maHoaDon,
+                tongThanhToan: tinhTien.tongThanhToan,
+                phuongThuc: this.phuongThucThanhToan,
+                giuBan: true
+            });
+        }
+
+        if (window.soDoBanPos) window.soDoBanPos.dongModal();
+
+        if (window.thongBao) {
+            window.thongBao.thanhCong(
+                'Thanh toán thành công! 💳',
+                `Đã thu tiền hóa đơn ${maHoaDon} (${tinhTien.tongThanhToan.toLocaleString()} đ). ${ban.soBan} vẫn được GIỮ NGUYÊN trên sơ đồ để phục vụ các món ăn cho khách.`
+            );
+        }
+
+        await this.taiVaHienThi();
+    }
+
     moModalLichSuHoaDon() {
         const ds = this.layLichSuHoaDon();
         const modal = document.getElementById('khung-modal-toan-cuc');

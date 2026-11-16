@@ -228,9 +228,14 @@ async function xacNhanThanhToanVietQr({ hoaDonId, maGiaoDichNganHang, thuNganId,
 /**
  * US-109 & US-110: Đóng toàn bộ phiên phục vụ và đưa bàn về trạng thái 'Bàn trống' (Trong)
  */
-async function dongPhienVaGiaiPhongBan(banId) {
+async function dongPhienVaGiaiPhongBan(banId, tuyChon = {}) {
     const ban = await banAnModel.layTheoId(banId);
     if (!ban) return;
+
+    if (tuyChon && tuyChon.giuBan) {
+        await banAnModel.capNhat(banId, { daThanhToan: true, trangThai: 'DangDung' });
+        return;
+    }
 
     // Đóng toàn bộ các đơn đặt món của bàn (chuyển sang HOAN_THANH)
     await donGoiMonModel.dongDonCuaBan(banId);
